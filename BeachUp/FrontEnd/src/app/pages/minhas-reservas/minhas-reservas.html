@@ -1,0 +1,209 @@
+<div class="rv-wrapper">
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  <div class="rv-body">
+    <section class="rv-section">
+      <div class="rv-section-header">
+        <div>
+          <h2 class="rv-section-title">Minhas reservas</h2>
+          <p class="rv-section-sub">Histórico e reservas ativas</p>
+        </div>
+        <button class="btn-icon" (click)="carregarMinhasReservas()" title="Atualizar">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+      </div>
+
+      @if (carregandoReservas) {
+      <div class="rv-loading">
+        <div class="spinner"></div>
+        <span>Carregando suas reservas...</span>
+      </div>
+      } @else if (minhasReservas.length === 0) {
+      <div class="rv-vazio">
+        <i class="bi bi-calendar-x"></i>
+        <span>Você ainda não tem reservas.</span>
+        <button class="btn-reservar" style="width: auto; margin-top: 8px" (click)="irPara('reservas')">
+          <i class="bi bi-calendar-plus"></i> Fazer uma reserva
+        </button>
+      </div>
+      } @else {
+      <div class="reservas-table-wrap">
+        <table class="reservas-table">
+          <thead>
+            <tr>
+              <th>Quadra</th>
+              <th>Início</th>
+              <th>Fim</th>
+              <th>Valor</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of minhasReservas; track r.id) {
+            <tr>
+              <td data-label="Quadra">
+                <span class="quadra-nome-cell">{{ r.nomeQuadra }}</span>
+              </td>
+              <td class="data-cell" data-label="Início">{{ formatarData(r.dataHoraInicio) }}</td>
+              <td class="data-cell" data-label="Fim">{{ formatarData(r.dataHoraFim) }}</td>
+              <td class="valor-cell" data-label="Valor">{{ formatarValor(r.valorTotal) }}</td>
+              <td data-label="Status">
+                <span class="badge-status" [class]="'status-' + r.status.toLowerCase()">
+                  {{
+                  r.status === 'PENDENTE'
+                  ? 'Pendente'
+                  : r.status === 'CONFIRMADA'
+                  ? 'Confirmada'
+                  : 'Cancelada'
+                  }}
+                </span>
+              </td>
+              <td class="acoes-cell" data-label="Ações">
+                @if (podePagar(r)) {
+                <button class="btn-pagar" (click)="pagarAgora(r)" [disabled]="pagandoReservaId === r.id"
+                  title="Pagar agora">
+                  @if (pagandoReservaId === r.id) {
+                  <span class="spinner-border spinner-border-sm"></span>
+                  } @else {
+                  <i class="bi bi-credit-card"></i>
+                  }
+                </button>
+                }
+                @if (podeCancelar(r)) {
+                <button class="btn-cancelar" (click)="cancelarReservaJogador(r)" title="Cancelar reserva">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+                }
+                @if (podeAvaliar(r)) {
+                <button class="btn-avaliar" [class.btn-avaliar-feita]="reservasAvaliadas.has(r.id)"
+                  (click)="abrirAvaliacao(r)"
+                  [title]="reservasAvaliadas.has(r.id) ? 'Ver avaliação' : 'Avaliar reserva'">
+                  <i class="bi" [class.bi-star-fill]="reservasAvaliadas.has(r.id)"
+                    [class.bi-star]="!reservasAvaliadas.has(r.id)"></i>
+                </button>
+                }
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+    </section>
+  </div>
+</div>
+
+@if (reservaSelecionada) {
+<div class="modal-overlay" (click)="fecharAvaliacao()">
+  <div class="modal-avaliacao" (click)="$event.stopPropagation()">
+
+    <div class="modal-av-header">
+      <div class="modal-av-icon">
+        <i class="bi bi-star-fill"></i>
+      </div>
+      <div>
+        <h3 class="modal-av-title">
+          @if (jaAvaliou) { Sua avaliação } @else { Avaliar reserva }
+        </h3>
+        <p class="modal-av-sub">{{ reservaSelecionada.nomeQuadra }}</p>
+      </div>
+      <button class="modal-close" (click)="fecharAvaliacao()" title="Fechar">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <div class="modal-av-resumo">
+      <span><i class="bi bi-clock"></i> {{ formatarData(reservaSelecionada.dataHoraInicio) }}</span>
+      <span class="sep-resumo">—</span>
+      <span>{{ formatarData(reservaSelecionada.dataHoraFim) }}</span>
+      <span class="resumo-valor">{{ formatarValor(reservaSelecionada.valorTotal) }}</span>
+    </div>
+
+    @if (jaAvaliou) {
+    <div class="av-banner-ja-avaliou">
+      <i class="bi bi-patch-check-fill"></i>
+      <span>Avaliação já registrada. Somente leitura.</span>
+    </div>
+    }
+
+    <div class="av-bloco">
+      <div class="av-bloco-header">
+        <div class="av-bloco-icon arena-icon"><i class="bi bi-building"></i></div>
+        <div>
+          <span class="av-bloco-title">Arena</span>
+          <span class="av-bloco-sub">Estrutura geral, limpeza, atendimento</span>
+        </div>
+        @if (notaArena > 0) {
+        <span class="nota-label">{{ getLabelNota(notaArena) }}</span>
+        }
+      </div>
+      <div class="stars-row">
+        @for (star of starsArray; track star) {
+        <button class="star-btn" [class.filled]="star <= (hoveredArena || notaArena)" [class.readonly]="jaAvaliou"
+          (mouseenter)="!jaAvaliou && (hoveredArena = star)" (mouseleave)="!jaAvaliou && (hoveredArena = 0)"
+          (click)="!jaAvaliou && (notaArena = star)" [disabled]="jaAvaliou">
+          <i class="bi" [class.bi-star-fill]="star <= (hoveredArena || notaArena)"
+            [class.bi-star]="star > (hoveredArena || notaArena)"></i>
+        </button>
+        }
+        @if (notaArena === 0 && !jaAvaliou) {
+        <span class="stars-hint">Selecione</span>
+        }
+      </div>
+      <textarea class="av-textarea" [(ngModel)]="comentarioArena" [readonly]="jaAvaliou"
+        placeholder="Comentário sobre a arena (opcional)" rows="2" maxlength="500"></textarea>
+    </div>
+
+    <div class="av-bloco">
+      <div class="av-bloco-header">
+        <div class="av-bloco-icon quadra-icon"><i class="bi bi-grid-3x3-gap"></i></div>
+        <div>
+          <span class="av-bloco-title">Quadra</span>
+          <span class="av-bloco-sub">Piso, iluminação, redes, marcações</span>
+        </div>
+        @if (notaQuadra > 0) {
+        <span class="nota-label">{{ getLabelNota(notaQuadra) }}</span>
+        }
+      </div>
+      <div class="stars-row">
+        @for (star of starsArray; track star) {
+        <button class="star-btn" [class.filled]="star <= (hoveredQuadra || notaQuadra)" [class.readonly]="jaAvaliou"
+          (mouseenter)="!jaAvaliou && (hoveredQuadra = star)" (mouseleave)="!jaAvaliou && (hoveredQuadra = 0)"
+          (click)="!jaAvaliou && (notaQuadra = star)" [disabled]="jaAvaliou">
+          <i class="bi" [class.bi-star-fill]="star <= (hoveredQuadra || notaQuadra)"
+            [class.bi-star]="star > (hoveredQuadra || notaQuadra)"></i>
+        </button>
+        }
+        @if (notaQuadra === 0 && !jaAvaliou) {
+        <span class="stars-hint">Selecione</span>
+        }
+      </div>
+      <textarea class="av-textarea" [(ngModel)]="comentarioQuadra" [readonly]="jaAvaliou"
+        placeholder="Comentário sobre a quadra (opcional)" rows="2" maxlength="500"></textarea>
+    </div>
+
+    @if (!jaAvaliou) {
+    <div class="modal-av-actions">
+      @if (!podeConcluir) {
+      <p class="av-hint"><i class="bi bi-info-circle"></i> Avalie arena e quadra para continuar</p>
+      }
+      <button class="btn-secondary" (click)="fecharAvaliacao()">Cancelar</button>
+      <button class="btn-primary" [disabled]="!podeConcluir || enviandoAvaliacao" (click)="enviarAvaliacao()">
+        @if (enviandoAvaliacao) {
+        <div class="spinner-sm"></div> Enviando...
+        } @else {
+        <i class="bi bi-send-check"></i> Enviar avaliação
+        }
+      </button>
+    </div>
+    } @else {
+    <div class="modal-av-actions">
+      <button class="btn-secondary" (click)="fecharAvaliacao()">Fechar</button>
+    </div>
+    }
+
+  </div>
+</div>
+}

@@ -1,0 +1,169 @@
+<div class="cj-wrapper">
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  <div class="cj-body">
+    <div class="cj-header">
+      <div>
+        <h1><i class="bi bi-people-fill"></i> Meus Times</h1>
+        <p>Crie sua dupla e chame seu parceiro com um convite personalizado pelo WhatsApp.</p>
+      </div>
+      <button class="btn-primary" (click)="abrirModalNovo()">
+        <i class="bi bi-plus-lg"></i> Novo time
+      </button>
+    </div>
+
+    <div class="estado-loading" *ngIf="carregando">
+      <div class="spinner-border text-secondary spinner-sm"></div>
+      <span>Carregando seus times...</span>
+    </div>
+
+    <div class="estado-vazio" *ngIf="!carregando && meusTimes.length === 0">
+      <i class="bi bi-people"></i>
+      <p>Você ainda não tem um time. Crie um e convide sua dupla!</p>
+      <button class="btn-primary" (click)="abrirModalNovo()">Criar meu time</button>
+    </div>
+
+    <div class="cj-lista" *ngIf="!carregando && meusTimes.length > 0">
+      <div class="cj-card" *ngFor="let t of meusTimes; trackBy: trackById">
+        <div class="cj-card-top">
+          <div>
+            <h3>{{ t.nome }}</h3>
+            <p class="cj-descricao" *ngIf="t.descricao">{{ t.descricao }}</p>
+          </div>
+          <span class="status-pill" [class.completo]="timeCompleto(t)">
+            {{ timeCompleto(t) ? 'Dupla completa' : 'Aguardando parceiro' }}
+          </span>
+        </div>
+
+        <div class="cj-membros">
+          <div class="membro" *ngFor="let m of t.membros">
+            <i class="bi bi-person-circle"></i>
+            <span>{{ m.nomeUsuario }}</span>
+            <span class="membro-status" [class.aceito]="m.status === 'ACEITO'">
+              {{
+              m.status === 'ACEITO'
+              ? 'Confirmado'
+              : m.status === 'PENDENTE'
+              ? 'Pendente'
+              : 'Recusado'
+              }}
+            </span>
+          </div>
+          <div class="membro membro-vazio" *ngIf="t.membros.length < 2">
+            <i class="bi bi-person-dash"></i>
+            <span>Vaga aberta</span>
+          </div>
+        </div>
+
+        <div class="cj-acoes" *ngIf="!timeCompleto(t)">
+          <button class="btn-primary btn-sm" (click)="abrirPainelConvite(t)">
+            <i class="bi bi-whatsapp"></i>
+            {{ timeConvitId === t.id ? 'Fechar convite' : 'Convidar parceiro' }}
+          </button>
+          <button class="btn-secondary btn-sm" (click)="copiarLink(t)">
+            <i class="bi bi-link-45deg"></i> Copiar link
+          </button>
+          <button class="btn-secondary btn-sm" [disabled]="regerandoId === t.id" (click)="regerarConvite(t)">
+            <i class="bi" [class.bi-arrow-repeat]="regerandoId !== t.id"
+              [class.bi-hourglass-split]="regerandoId === t.id"></i>
+            Gerar novo link
+          </button>
+        </div>
+
+        <!-- Painel de convite profissional -->
+        <div class="convite-painel" *ngIf="timeConvitId === t.id">
+
+          <!-- Preview do convite -->
+          <div class="convite-card-preview">
+            <div class="convite-preview-bg">
+              <div class="convite-preview-glow"></div>
+              <div class="convite-preview-content">
+                <div class="convite-preview-logo">
+                  <i class="bi bi-trophy-fill"></i> BeachUp
+                </div>
+                <div class="convite-preview-titulo">Você foi convidado!</div>
+                <div class="convite-preview-time">
+                  <i class="bi bi-people-fill"></i>
+                  Time <strong>{{ t.nome }}</strong>
+                </div>
+                <div class="convite-preview-de" *ngIf="meuNome">
+                  de <span>{{ meuNome }}</span>
+                </div>
+                <div class="convite-preview-cta">
+                  <i class="bi bi-volleyball"></i> Bora jogar beach tennis?
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulário -->
+          <form class="convite-form" [formGroup]="convitForm" (ngSubmit)="enviarWhatsapp(t)">
+            <div class="convite-form-titulo">
+              <i class="bi bi-send-fill"></i> Personalizar convite
+            </div>
+
+            <div class="campo-grupo">
+              <div class="campo">
+                <label>Nome do parceiro</label>
+                <input type="text" formControlName="nomeAmigo" placeholder="Ex: João"
+                  (blur)="atualizarMensagemPadrao(t)" />
+              </div>
+              <div class="campo">
+                <label>WhatsApp</label>
+                <input type="text" formControlName="telefone" placeholder="Ex: 11999998888" />
+                <span class="campo-dica">Com DDD. Deixe em branco para escolher no WhatsApp.</span>
+              </div>
+            </div>
+
+            <div class="campo">
+              <label>Mensagem</label>
+              <textarea formControlName="mensagem" rows="5"></textarea>
+            </div>
+
+            <div class="convite-form-acoes">
+              <button type="button" class="btn-secondary btn-sm" (click)="atualizarMensagemPadrao(t)">
+                <i class="bi bi-arrow-repeat"></i> Resetar mensagem
+              </button>
+              <button type="submit" class="btn-whatsapp">
+                <i class="bi bi-whatsapp"></i> Enviar pelo WhatsApp
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal novo time -->
+  <div class="modal-overlay" *ngIf="modalNovoAberto" (click)="fecharModalNovo()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="bi bi-people-fill"></i> Novo time</h3>
+        <button class="modal-close" (click)="fecharModalNovo()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <form class="modal-body" [formGroup]="novoTimeForm" (ngSubmit)="criarTime()">
+        <div class="campo">
+          <label>Nome do time*</label>
+          <input type="text" formControlName="nome" maxlength="50" placeholder="Ex: Areia Quente" />
+        </div>
+
+        <div class="campo">
+          <label>Descrição</label>
+          <input type="text" formControlName="descricao" maxlength="50" placeholder="Opcional" />
+        </div>
+
+        <div class="modal-acoes">
+          <button type="button" class="btn-secondary" (click)="fecharModalNovo()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="criando">
+            {{ criando ? 'Criando...' : 'Criar time' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

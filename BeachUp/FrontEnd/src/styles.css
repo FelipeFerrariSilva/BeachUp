@@ -1,0 +1,103 @@
+:root {
+  --text-color: #1e293b;
+  --bg-color: #382111;
+    color: #fff;
+  --primary-color: #e97c23;
+}
+
+body {
+  background: var(--bg-color);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--text-color);
+  transition: 0.3s ease;
+}
+
+
+:root {
+  --bg-color: linear-gradient(135deg, #000, #000);
+  --text-color: #1e293b;
+  --primary-color: #e97c23;
+}
+
+body {
+  background: #0D0D0D !important;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--text-color);
+  transition: 0.3s ease;
+}
+
+.swal-beachup-popup {
+  border-radius: 16px !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6) !important;
+  padding: 2rem 2rem 1.5rem !important;
+}
+
+.swal-beachup-title {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: #f0f0f0 !important;
+  margin-bottom: 0.4rem !important;
+}
+
+.swal-beachup-text {
+  font-size: 0.95rem !important;
+  color: #a0a0a0 !important;
+  line-height: 1.5 !important;
+}
+
+.swal-beachup-btn-confirm {
+  border-radius: 8px !important;
+  padding: 0.55rem 1.6rem !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  background-color: #e97c23 !important;
+  color: #fff !important;
+  border: none !important;
+  transition: background 0.2s ease, transform 0.1s ease !important;
+}
+
+.swal-beachup-btn-confirm:hover {
+  background-color: #d06a14 !important;
+  transform: translateY(-1px) !important;
+}
+
+.swal-beachup-btn-cancel {
+  border-radius: 8px !important;
+  padding: 0.55rem 1.6rem !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  background-color: rgba(255, 0, 0, 0.71) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  transition: all 0.2s ease !important;
+}
+
+.swal-beachup-btn-cancel:hover {
+  background-color: rgba(94, 0, 0, 0.952) !important;
+  color: #fff !important;
+}
+
+.swal2-timer-progress-bar {
+  background: #e97c23 !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-ring {
+  border-color: rgba(233, 124, 35, 0.3) !important;
+}
+
+.swal2-icon.swal2-success [class^='swal2-success-line'] {
+  background-color: #e97c23 !important;
+}
+
+div:where(.swal2-icon) .swal2-icon-content {
+  display: flex;
+  align-items: center;
+  font-size: 1.2em !important;
+}

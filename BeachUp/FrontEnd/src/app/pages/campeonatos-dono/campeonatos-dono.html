@@ -1,0 +1,150 @@
+<div class="cmd-wrapper">
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  <div class="cmd-body">
+    <div class="cmd-header">
+      <div>
+        <h1><i class="bi bi-trophy-fill"></i> Meus Campeonatos</h1>
+        <p>Crie campeonatos, acompanhe inscrições e sorteie o chaveamento.</p>
+      </div>
+      <button class="btn-primary" (click)="abrirModalNovo()">
+        <i class="bi bi-plus-lg"></i> Novo campeonato
+      </button>
+    </div>
+
+    <div class="aviso-arena" *ngIf="!carregandoArenas && arenas.length === 0">
+      <i class="bi bi-building-x"></i>
+      Você precisa cadastrar uma arena antes de criar um campeonato.
+      <button class="btn-link" (click)="irPara('arena')">Cadastrar agora →</button>
+    </div>
+
+    <div class="estado-loading" *ngIf="carregandoArenas || carregandoCampeonatos">
+      <div class="spinner-border text-secondary spinner-sm"></div>
+      <span>Carregando campeonatos...</span>
+    </div>
+
+    <div
+      class="estado-vazio"
+      *ngIf="!carregandoArenas && !carregandoCampeonatos && meusCampeonatos.length === 0 && arenas.length > 0"
+    >
+      <i class="bi bi-trophy"></i>
+      <p>Nenhum campeonato criado ainda.</p>
+      <button class="btn-primary" (click)="abrirModalNovo()">Criar primeiro campeonato</button>
+    </div>
+
+    <div
+      class="cmd-grid"
+      *ngIf="!carregandoArenas && !carregandoCampeonatos && meusCampeonatos.length > 0"
+    >
+      <div class="cmd-card" *ngFor="let c of meusCampeonatos; trackBy: trackById">
+        <div class="cmd-card-top">
+          <span class="status-pill" [attr.data-status]="c.status">{{ statusLabel[c.status] }}</span>
+          <span class="cmd-categoria" *ngIf="c.categoria">{{ c.categoria }}</span>
+        </div>
+
+        <h3>{{ c.nome }}</h3>
+        <p class="cmd-descricao" *ngIf="c.descricao">{{ c.descricao }}</p>
+
+        <div class="cmd-info">
+          <span><i class="bi bi-calendar3"></i> {{ formatarData(c.dataInicio) }}</span>
+          <span><i class="bi bi-people-fill"></i> {{ c.totalInscritos }}/16 times inscritos</span>
+        </div>
+
+        <div class="cmd-aviso-bloqueio" *ngIf="c.status === 'INSCRICOES_ABERTAS' && motivoBloqueio(c)">
+          <i class="bi bi-info-circle"></i> {{ motivoBloqueio(c) }}
+        </div>
+
+        <div class="cmd-acoes">
+          <button class="btn-secondary btn-sm" (click)="verDetalhes(c.id)">
+            <i class="bi bi-bar-chart-fill"></i> Ver chaveamento
+          </button>
+
+          <button
+            class="btn-secondary btn-sm"
+            *ngIf="c.status === 'INSCRICOES_ABERTAS'"
+            (click)="copiarLinkInscricao(c)"
+          >
+            <i class="bi bi-link-45deg"></i> Copiar link de inscrição
+          </button>
+
+          <button
+            class="btn-primary btn-sm"
+            *ngIf="c.status === 'INSCRICOES_ABERTAS'"
+            [disabled]="!podeIniciar(c) || iniciandoId === c.id"
+            (click)="iniciarCampeonato(c)"
+          >
+            <i class="bi" [class.bi-shuffle]="iniciandoId !== c.id" [class.bi-arrow-repeat]="iniciandoId === c.id"></i>
+            {{ iniciandoId === c.id ? 'Sorteando...' : 'Fechar inscrições e sortear' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="modalAberto" (click)="fecharModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="bi bi-trophy-fill"></i> Novo campeonato</h3>
+        <button class="modal-close" (click)="fecharModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <form class="modal-body" [formGroup]="campeonatoForm" (ngSubmit)="criarCampeonato()">
+        <div class="campo">
+          <label>Nome*</label>
+          <input type="text" formControlName="nome" maxlength="50" placeholder="Ex: Open de Verão BeachUp" />
+          <span class="erro-campo" *ngIf="campoInvalido('nome')">Informe o nome do campeonato.</span>
+        </div>
+
+        <div class="campo">
+          <label>Descrição</label>
+          <input type="text" formControlName="descricao" maxlength="60" placeholder="Opcional" />
+        </div>
+
+        <div class="campo-grupo">
+          <div class="campo">
+            <label>Categoria</label>
+            <input type="text" formControlName="categoria" maxlength="20" placeholder="Ex: Misto / Open" />
+          </div>
+
+          <div class="campo">
+            <label>Arena*</label>
+            <select formControlName="arenaId">
+              <option [ngValue]="null" disabled>Selecione</option>
+              <option *ngFor="let a of arenas" [ngValue]="a.id">{{ a.nome }}</option>
+            </select>
+            <span class="erro-campo" *ngIf="campoInvalido('arenaId')">Selecione uma arena.</span>
+          </div>
+        </div>
+
+        <div class="campo-grupo">
+          <div class="campo">
+            <label>Data de início*</label>
+            <input type="date" formControlName="dataInicio" />
+            <span class="erro-campo" *ngIf="campoInvalido('dataInicio')">Informe a data de início.</span>
+          </div>
+
+          <div class="campo">
+            <label>Data de fim</label>
+            <input type="date" formControlName="dataFim" />
+          </div>
+        </div>
+
+        <p class="modal-dica">
+          <i class="bi bi-info-circle"></i>
+          Após criar, compartilhe o link de inscrição com os times. São necessários exatamente
+          8 ou 16 times inscritos para iniciar o chaveamento.
+        </p>
+
+        <div class="modal-acoes">
+          <button type="button" class="btn-secondary" (click)="fecharModal()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="salvando">
+            {{ salvando ? 'Salvando...' : 'Criar campeonato' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

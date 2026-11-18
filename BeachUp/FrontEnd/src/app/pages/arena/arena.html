@@ -1,0 +1,179 @@
+<app-nav-bar></app-nav-bar>
+<app-menu-lateral></app-menu-lateral>
+
+<div class="ar-root">
+
+  <div class="ar-hero">
+    <div class="ar-hero-overlay"></div>
+    <div class="ar-hero-content">
+      <span class="ar-hero-eyebrow">CADASTRO DE ARENA</span>
+      <h1 class="ar-hero-title">
+        Cadastre sua<br>Arena de<br>
+        <span class="ar-hero-accent">Beach Tennis</span>
+      </h1>
+      <p class="ar-hero-desc">
+        Gerencie reservas, horários e clientes em um só lugar.<br>
+        Coloque sua arena no mapa do beach tennis.
+      </p>
+    </div>
+  </div>
+
+  <div class="ar-form-panel">
+    <div class="ar-form-inner">
+
+      <form [formGroup]="arenaForm" (ngSubmit)="cadastrarArena()">
+
+        <div class="ar-section-title">
+          <i class="bi bi-building"></i> Dados da Arena
+        </div>
+
+        <div class="ar-field">
+          <label class="ar-label">Nome da Arena <span class="ar-req">*</span></label>
+          <input
+            type="text"
+            class="ar-input"
+            formControlName="nome"
+            placeholder="Ex: Arena Sunset Beach"
+          />
+          @if (f['nome'].touched && f['nome'].invalid) {
+            <span class="ar-error">Informe o nome da arena (mínimo 3 caracteres).</span>
+          }
+        </div>
+
+        <div class="ar-field">
+          <label class="ar-label">Descrição <span class="ar-req">*</span></label>
+          <textarea
+            class="ar-input ar-textarea"
+            formControlName="descricao"
+            placeholder="Descreva sua arena, diferenciais, estrutura..."
+            rows="3"
+          ></textarea>
+          @if (f['descricao'].touched && f['descricao'].invalid) {
+            <span class="ar-error">Informe uma descrição (mínimo 10 caracteres).</span>
+          }
+        </div>
+
+        <div class="ar-field">
+          <label class="ar-label">Foto da Arena</label>
+          <label class="ar-upload-zone" [class.ar-upload-zone--preview]="previewImage">
+            @if (previewImage) {
+              <img [src]="previewImage" class="ar-upload-preview" alt="Preview" />
+              <span class="ar-upload-change"><i class="bi bi-pencil"></i> Alterar foto</span>
+            } @else {
+              <i class="bi bi-cloud-arrow-up ar-upload-icon"></i>
+              <span class="ar-upload-text">Enviar foto da arena</span>
+              <span class="ar-upload-hint">JPG ou PNG · máx. 5MB</span>
+            }
+            <input type="file" accept="image/*" (change)="imagemSelecionada($event)" hidden />
+          </label>
+        </div>
+
+
+        <div class="ar-section-title ar-section-title--mt">
+          <i class="bi bi-geo-alt-fill"></i> Endereço
+          <button type="button" class="ar-btn-location" (click)="usarLocalizacaoAtual()" [disabled]="obtendoLocalizacao">
+            @if (obtendoLocalizacao) {
+              <div class="ar-spinner-xs"></div> Obtendo...
+            } @else {
+              <i class="bi bi-crosshair2"></i> Usar localização
+            }
+          </button>
+        </div>
+
+        @if (latitude && longitude) {
+          <div class="ar-location-ok">
+            <i class="bi bi-check-circle-fill"></i> Localização capturada. Confira os campos abaixo.
+          </div>
+        }
+
+        <div class="ar-row-cep">
+          <div class="ar-field ar-field--cep">
+            <label class="ar-label">CEP <span class="ar-req">*</span></label>
+            <input type="text" class="ar-input" formControlName="cep" mask="00000-000" placeholder="00000-000" />
+            @if (f['cep'].touched && f['cep'].invalid) {
+              <span class="ar-error">CEP inválido.</span>
+            }
+          </div>
+          <div class="ar-field ar-field--logradouro">
+            <label class="ar-label">Logradouro <span class="ar-req">*</span></label>
+            <input type="text" class="ar-input" formControlName="logradouro" placeholder="Rua, Avenida..." />
+            @if (f['logradouro'].touched && f['logradouro'].invalid) {
+              <span class="ar-error">Informe o logradouro.</span>
+            }
+          </div>
+        </div>
+
+        <div class="ar-row-3">
+          <div class="ar-field ar-field--bairro">
+            <label class="ar-label">Bairro</label>
+            <input type="text" class="ar-input" formControlName="bairro" placeholder="Nome do bairro" />
+          </div>
+          <div class="ar-field ar-field--numero">
+            <label class="ar-label">Número <span class="ar-req">*</span></label>
+            <input type="text" class="ar-input" formControlName="numero" placeholder="Ex: 123" />
+            @if (f['numero'].touched && f['numero'].invalid) {
+              <span class="ar-error">Informe o número.</span>
+            }
+          </div>
+        </div>
+
+        <div class="ar-row-2">
+          <div class="ar-field">
+            <label class="ar-label">Cidade <span class="ar-req">*</span></label>
+            <input type="text" class="ar-input" formControlName="cidade" placeholder="Ex: Maringá" />
+            @if (f['cidade'].touched && f['cidade'].invalid) {
+              <span class="ar-error">Informe a cidade.</span>
+            }
+          </div>
+          <div class="ar-field ar-field--estado">
+            <label class="ar-label">Estado <span class="ar-req">*</span></label>
+            <input type="text" class="ar-input" formControlName="estado" placeholder="PR" maxlength="2"
+              style="text-transform: uppercase" />
+            @if (f['estado'].touched && f['estado'].invalid) {
+              <span class="ar-error">UF inválida.</span>
+            }
+          </div>
+        </div>
+
+        <div class="ar-section-title ar-section-title--mt">
+          <i class="bi bi-clock-history"></i> Horários de Funcionamento
+          <span class="ar-opcional">(opcional)</span>
+          <button type="button" class="ar-btn-todos" (click)="selecionarTodosDias()">
+            {{ diasSelecionados === 7 ? 'Desmarcar todos' : 'Selecionar todos' }}
+          </button>
+        </div>
+
+        <small class="ar-hint-text">Selecione os dias em que a arena funciona.</small>
+
+        <div class="ar-dias-grid">
+          @for (h of horarios; track h.diaSemana) {
+            <div class="ar-dia" [class.ar-dia--ativo]="h.ativo" (click)="toggleDia(h)">
+              <div class="ar-dia-check">
+                <i class="bi" [class.bi-check-circle-fill]="h.ativo" [class.bi-circle]="!h.ativo"></i>
+              </div>
+              <span class="ar-dia-label">{{ h.label }}</span>
+              @if (h.ativo) {
+                <div class="ar-dia-horas" (click)="$event.stopPropagation()">
+                  <input type="time" class="ar-time-input" [(ngModel)]="h.horaAbertura" [ngModelOptions]="{standalone: true}" />
+                  <span class="ar-time-sep">–</span>
+                  <input type="time" class="ar-time-input" [(ngModel)]="h.horaFechamento" [ngModelOptions]="{standalone: true}" />
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Botão submit -->
+        <button type="submit" class="ar-btn-submit" [disabled]="carregando">
+          @if (carregando) {
+            <div class="ar-spinner-xs"></div> Cadastrando...
+          } @else {
+            <i class="bi bi-check-circle-fill"></i> Cadastrar Arena
+          }
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+</div>

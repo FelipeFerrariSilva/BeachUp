@@ -1,0 +1,39 @@
+<div class="retorno-wrapper">
+  <div class="retorno-card" [class.retorno-card--falha]="resultado === 'falha'"
+    [class.retorno-card--pendente]="resultado === 'pendente'">
+
+    <div class="retorno-icon" *ngIf="resultado === 'sucesso'">
+      <i class="bi bi-check-circle-fill"></i>
+    </div>
+    <div class="retorno-icon retorno-icon--falha" *ngIf="resultado === 'falha'">
+      <i class="bi bi-x-circle-fill"></i>
+    </div>
+    <div class="retorno-icon retorno-icon--pendente" *ngIf="resultado === 'pendente'">
+      <i class="bi bi-hourglass-split"></i>
+    </div>
+
+    <h2 *ngIf="resultado === 'sucesso'">Pagamento aprovado!</h2>
+    <h2 *ngIf="resultado === 'falha'">Não foi possível concluir o pagamento</h2>
+    <h2 *ngIf="resultado === 'pendente'">Pagamento em análise</h2>
+
+    <p *ngIf="resultado === 'sucesso' && destino === 'reserva'">
+      Sua reserva foi confirmada com sucesso. Já estamos te levando para "{{ labelDestino }}".
+    </p>
+    <p *ngIf="resultado === 'sucesso' && destino !== 'reserva'">
+      Tudo certo com o seu pagamento. Já estamos te levando para "{{ labelDestino }}".
+    </p>
+    <p *ngIf="resultado === 'falha'">
+      Você pode tentar novamente em "{{ labelDestino }}".
+    </p>
+    <p *ngIf="resultado === 'pendente'">
+      Assim que o Mercado Pago confirmar, sua reserva será atualizada automaticamente. Acompanhe em "{{ labelDestino
+      }}".
+    </p>
+
+    <button class="btn-ir-agora" (click)="irParaDestino()">
+      Ir para {{ labelDestino }} agora
+    </button>
+
+    <span class="contador">Redirecionando em {{ segundosRestantes }}s...</span>
+  </div>
+</div>

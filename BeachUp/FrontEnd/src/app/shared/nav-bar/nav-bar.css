@@ -1,0 +1,207 @@
+.rv-header {
+  background: rgba(0, 0, 0, 0.55) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  position: sticky;
+  top: 0;
+  height: 70px;
+  z-index: 100;
+}
+
+.rv-header-inner {
+  max-width: 96%;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.rv-brand {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  margin-left: 10px;
+  flex-shrink: 0;
+}
+
+.rv-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.rv-brand-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.rv-brand-name .orange {
+  color: #FF6B00;
+}
+
+.date-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 14px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+
+.date-badge .icon {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.rv-nav {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  align-items: center;
+}
+
+.rv-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #fff !important;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.rv-nav-link:hover {
+  background: #ff6a00 !important;
+  color: #fff;
+}
+
+.rv-nav-link.active {
+  background: rgba(255, 107, 0, 0.2);
+  color: #FF6B00;
+}
+
+.rv-btn-upgrade {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #c46800, #c05000);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  margin-right: 4px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(255, 106, 0, 0.35);
+  white-space: nowrap;
+}
+
+.rv-btn-upgrade:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(255, 106, 0, 0.45);
+}
+
+.rv-btn-upgrade:active {
+  transform: translateY(0);
+}
+
+.rv-btn-upgrade i {
+  font-size: 1rem;
+}
+
+.rv-nav-person {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.rv-nav-person:hover {
+  background: #FF6B00;
+}
+
+.rv-nav-person img {
+  height: 36px;
+  width: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.date-badge.clima-frio {
+  color: #3b9ee5;
+}
+
+.date-badge.clima-frio .icon {
+  filter: hue-rotate(180deg) saturate(2);
+}
+
+.date-badge.clima-quente {
+  color: #e74c3c;
+}
+
+.date-badge.clima-quente .icon {
+  filter: hue-rotate(-20deg) saturate(2);
+}
+
+.date-badge.clima-ameno {
+  color: #f39c12;
+}
+
+@media (max-width: 768px) {
+  .rv-header-inner {
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .rv-nav-link,
+  .rv-btn-upgrade,
+  .date-badge {
+    display: none;
+  }
+
+  .rv-nav-person {
+    display: flex;
+  }
+
+  .rv-brand-name {
+    font-size: 1rem;
+  }
+
+  .rv-logo {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .rv-nav-link span {
+    display: none;
+  }
+
+  .rv-nav-link {
+    padding: 7px 10px;
+  }
+
+  .date-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}

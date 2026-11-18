@@ -1,0 +1,70 @@
+<header class="rv-header">
+  <div class="rv-header-inner">
+    <div class="rv-brand" (click)="irPara(isEmpresa ? 'dashboard-dono' : 'reservas')">
+      <img src="assets/logo/logo.png" alt="BeachUp" class="rv-logo" />
+      <span class="rv-brand-name">Beach<span class="orange">Up</span></span>
+    </div>
+
+    <!-- <span class="date-badge">
+      <span class="icon">🕒</span>
+      {{ now | date: 'EEEE, dd/MM/yyyy ·· HH:mm:ss' }}
+    </span> -->
+
+    <span class="date-badge" *ngIf="!carregandoClima && temperatura !== null">
+      <i class="bi" [class.bi-thermometer-snow]="temperatura! <= 18" [class.bi-thermometer-sun]="temperatura! >= 28"
+        [class.bi-thermometer-half]="temperatura! > 18 && temperatura! < 28"
+        [style.color]="temperatura! <= 18 ? '#3b9ee5' : (temperatura! >= 28 ? '#e74c3c' : '#f39c12')">
+      </i>
+      {{ temperatura }}°C
+    </span>
+
+    <nav class="rv-nav">
+
+      @if (isJogador) {
+      <a class="rv-nav-link" routerLink="/reservas" routerLinkActive="active">
+        <i class="bi bi-calendar-check"></i> Reservar Quadras
+      </a>
+
+      <a class="rv-nav-link" routerLink="/minhas-reservas" routerLinkActive="active">
+        <i class="bi bi-list-check"></i> Minhas Reservas
+      </a>
+
+      <a class="rv-nav-link" routerLink="/convidar-jogadores" routerLinkActive="active">
+        <i class="bi bi-people"></i> Times
+      </a>
+
+      <a class="rv-nav-link" routerLink="/campeonatos" routerLinkActive="active">
+        <i class="bi bi-trophy"></i> Campeonatos
+      </a>
+      }
+
+      @if (isEmpresa) {
+      <a class="rv-nav-link" (click)="irPara('dashboard-dono')">
+        <i class="bi bi-house"></i> Inicio </a>
+
+      <a class="rv-nav-link" (click)="irPara('arena')" routerLinkActive="active">
+        <i class="bi bi-plus-lg"></i> Cadastrar Arena </a>
+
+      <a class="rv-nav-link" (click)="irPara('/quadras-dono')" routerLinkActive="active">
+        <i class="bi bi-clipboard"></i> Minhas quadras </a>
+
+      <a class="rv-nav-link" (click)="irPara('campeonatos-dono')" routerLinkActive="active">
+        <i class="bi bi-trophy"></i> Campeonatos </a>
+
+      <a class="rv-nav-link" (click)="irPara('metricas')" routerLinkActive="active">
+        <i class="bi bi-bar-chart-line-fill"></i> Metricas </a>
+
+      <a class="rv-btn-upgrade" (click)="irPara('planos')" routerLinkActive="active">
+        <i class="bi bi-stars"></i> Upgrade </a>
+      }
+
+      <a class="rv-nav-person" (click)="irPara('perfil')">
+        @if (usuarioService.fotoUrl$ | async; as fotoUrl) {
+        <img [src]="fotoUrl" alt="perfil" />
+        } @else {
+        <img src="assets/user/user.png" alt="perfil" />
+        }
+      </a>
+    </nav>
+  </div>
+</header>

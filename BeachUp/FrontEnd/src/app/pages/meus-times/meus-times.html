@@ -1,0 +1,181 @@
+<app-menu-lateral></app-menu-lateral>
+<app-nav-bar></app-nav-bar>
+
+<div class="times-wrapper">
+
+  <!-- ===== HEADER ===== -->
+  <div class="times-header">
+    <div class="times-header-info">
+      <h1 class="times-titulo">Meus Times</h1>
+      <span class="times-subtitulo">Gerencie seus times de Beach Tennis</span>
+    </div>
+  </div>
+
+  <div class="times-layout">
+
+    <aside class="times-sidebar">
+      <div class="criar-card">
+        <div class="criar-card-header">
+          <i class="bi bi-people-fill"></i>
+          <span>Criar novo time</span>
+        </div>
+
+        <form [formGroup]="criarForm" (ngSubmit)="criarTime()" class="criar-form">
+
+          <div class="campo-grupo">
+            <label class="campo-label">Nome do time <span class="obrig">*</span></label>
+            <input type="text" class="campo-input" placeholder="Ex: Dupla Sunset" formControlName="nome" />
+            <small class="campo-erro" *ngIf="f['nome'].touched && f['nome'].invalid">
+              Mínimo 3 caracteres.
+            </small>
+          </div>
+
+          <div class="campo-grupo">
+            <label class="campo-label">Descrição <span class="opcional">(opcional)</span></label>
+            <textarea class="campo-input campo-textarea" placeholder="Fale sobre o time, nível, estilo de jogo..."
+              formControlName="descricao" rows="3"></textarea>
+          </div>
+
+          <button type="submit" class="btn-criar" [disabled]="salvando">
+            <span *ngIf="!salvando">
+              <i class="bi bi-plus-circle-fill me-2"></i>Criar time
+            </span>
+            <span *ngIf="salvando">
+              <span class="spinner-border spinner-border-sm me-2"></span>Criando...
+            </span>
+          </button>
+
+        </form>
+      </div>
+    </aside>
+
+    <main class="times-main">
+
+      <div class="estado-loading" *ngIf="carregando">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Carregando seus times...
+      </div>
+
+      <div class="estado-vazio" *ngIf="!carregando && times.length === 0">
+        <i class="bi bi-people"></i>
+        <p>Você ainda não participa de nenhum time.</p>
+        <span>Crie um time ao lado ou aguarde um convite.</span>
+      </div>
+
+      <div class="times-grid" *ngIf="!carregando && times.length > 0">
+        <div class="time-card" *ngFor="let time of times" (click)="abrirDetalhe(time)">
+          <!-- Badge dono -->
+          <span class="badge-dono" *ngIf="isDono(time)">
+            <i class="bi bi-crown-fill me-1"></i>Dono
+          </span>
+          <span class="badge-membro" *ngIf="!isDono(time)">
+            <i class="bi bi-person-check-fill me-1"></i>Membro
+          </span>
+
+          <div class="time-card-nome">{{ time.nome }}</div>
+
+          <div class="time-card-desc" *ngIf="time.descricao">
+            {{ time.descricao }}
+          </div>
+          <div class="time-card-desc sem-desc" *ngIf="!time.descricao">
+            Sem descrição
+          </div>
+
+          <div class="time-card-footer">
+            <div class="time-membros">
+              <i class="bi bi-people-fill me-1"></i>
+              {{ membrosAceitos(time).length }} membro{{ membrosAceitos(time).length !== 1 ? 's' : '' }}
+              <span class="pendentes-badge" *ngIf="membrosPendentes(time).length > 0">
+                +{{ membrosPendentes(time).length }} pendente{{ membrosPendentes(time).length !== 1 ? 's' : '' }}
+              </span>
+            </div>
+            <i class="bi bi-chevron-right"></i>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalAberto" (click)="fecharModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div>
+        <div class="modal-titulo">{{ timeSelecionado?.nome }}</div>
+        <div class="modal-desc" *ngIf="timeSelecionado?.descricao">
+          {{ timeSelecionado?.descricao }}
+        </div>
+      </div>
+      <button class="modal-fechar" (click)="fecharModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="convite-section" *ngIf="isDono(timeSelecionado!)">
+      <div class="convite-label">
+        <i class="bi bi-link-45deg me-1"></i>Link de convite
+      </div>
+
+      <div class="convite-box" *ngIf="timeSelecionado?.urlConvite">
+        <span class="convite-url">{{ linkCompleto(timeSelecionado!.urlConvite!) }}</span>
+        <button class="btn-copiar" type="button" (click)="copiarConvite(linkCompleto(timeSelecionado!.urlConvite!))"
+          title="Copiar link">
+          <i class="bi bi-clipboard-fill"></i>
+        </button>
+      </div>
+
+      <div class="convite-vazio" *ngIf="!timeSelecionado?.urlConvite">
+        Nenhum link gerado ainda.
+      </div>
+
+      <button class="btn-regerar" type="button" (click)="regerarConvite(timeSelecionado!)"
+        [disabled]="regerandoConviteId === timeSelecionado?.id">
+        <span *ngIf="regerandoConviteId !== timeSelecionado?.id">
+          <i class="bi bi-arrow-clockwise me-1"></i>
+          {{ timeSelecionado?.urlConvite ? 'Gerar novo link' : 'Gerar link' }}
+        </span>
+        <span *ngIf="regerandoConviteId === timeSelecionado?.id">
+          <span class="spinner-border spinner-border-sm me-1"></span>Gerando...
+        </span>
+      </button>
+    </div>
+
+    <div class="membros-section">
+      <div class="membros-titulo">
+        <i class="bi bi-people-fill me-1"></i>
+        Membros ({{ membrosAceitos(timeSelecionado!).length }})
+      </div>
+
+      <div class="membro-vazio" *ngIf="membrosAceitos(timeSelecionado!).length === 0">
+        Nenhum membro confirmado ainda.
+      </div>
+
+      <div class="membro-item" *ngFor="let m of membrosAceitos(timeSelecionado!)">
+        <div class="membro-avatar">
+          {{ m.nomeUsuario.charAt(0).toUpperCase() }}
+        </div>
+        <span class="membro-nome">{{ m.nomeUsuario }}</span>
+        <span class="membro-dono-tag" *ngIf="m.idJogador === timeSelecionado?.idJogadorDono">
+          <i class="bi bi-crown-fill"></i>
+        </span>
+      </div>
+    </div>
+
+    <div class="membros-section pendentes" *ngIf="membrosPendentes(timeSelecionado!).length > 0">
+      <div class="membros-titulo">
+        <i class="bi bi-hourglass-split me-1"></i>
+        Aguardando resposta ({{ membrosPendentes(timeSelecionado!).length }})
+      </div>
+      <div class="membro-item pendente" *ngFor="let m of membrosPendentes(timeSelecionado!)">
+        <div class="membro-avatar pendente-avatar">
+          {{ m.nomeUsuario.charAt(0).toUpperCase() }}
+        </div>
+        <span class="membro-nome">{{ m.nomeUsuario }}</span>
+        <span class="membro-status-pendente">Pendente</span>
+      </div>
+    </div>
+
+  </div>
+</div>

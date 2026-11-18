@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
+  <title>Redefinição de Senha — BeachUp</title>
+  <style>
+    body,
+    table,
+    td,
+    a {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%
+    }
+
+    table,
+    td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt
+    }
+
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+      -ms-interpolation-mode: bicubic
+    }
+
+    a[x-apple-data-detectors] {
+      color: inherit !important;
+      text-decoration: none !important
+    }
+
+    #MessageViewBody,
+    #MessageWebViewDiv {
+      width: 100% !important
+    }
+
+    @media only screen and (max-width:620px) {
+      .email-container {
+        width: 100% !important;
+        border-radius: 0 !important
+      }
+
+      .content-pad {
+        padding: 32px 24px !important
+      }
+
+      .header-pad {
+        padding: 28px 24px !important
+      }
+
+      .footer-pad {
+        padding: 18px 24px !important
+      }
+
+      .logo-img {
+        width: 64px !important;
+        height: 64px !important
+      }
+
+      .cta-btn {
+        padding: 13px 32px !important;
+        font-size: 14px !important
+      }
+    }
+
+    @media (prefers-color-scheme:dark) {
+      .email-bg {
+        background-color: #0d0d0d !important
+      }
+
+      .email-container {
+        background-color: #181818 !important;
+        border-color: rgba(255, 255, 255, 0.06) !important
+      }
+
+      .email-footer-cell {
+        background-color: #101010 !important
+      }
+    }
+  </style>
+</head>
+
+<body class="email-bg" style="margin:0;padding:0;background-color:#0f0f0f;
+     font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;color:#0f0f0f;font-size:1px;">
+    Solicitação de redefinição de senha BeachUp — link válido por 30
+    minutos.&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+    style="background-color:#0f0f0f;padding:48px 16px;">
+    <tr>
+      <td align="center" valign="top">
+
+        <table role="presentation" class="email-container" width="580" cellpadding="0" cellspacing="0" style="background-color:#181818;border-radius:20px;overflow:hidden;
+                      border:1px solid rgba(255,255,255,0.06);
+                      box-shadow:0 32px 80px rgba(0,0,0,0.70);
+                      max-width:580px;width:100%;">
+
+          <tr>
+            <td class="header-pad" style="background:linear-gradient(145deg,#d97320 0%,#b85510 55%,#a04510 100%);
+                       padding:36px 48px 32px;text-align:center;position:relative;">
+
+
+              <h1 style="margin:0 0 4px;color:#ffffff;font-size:28px;font-weight:800;
+                         letter-spacing:-0.5px;line-height:1.1;
+                         font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+                BeachUp
+              </h1>
+              <p style="margin:0;color:rgba(255,255,255,0.70);font-size:12px;
+                        letter-spacing:2.5px;text-transform:uppercase;font-weight:500;
+                        font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+                Plataforma de Beach Tennis
+              </p>
+
+            </td>
+          </tr>
+
+          <tr>
+            <td style="background:linear-gradient(90deg,transparent 0%,rgba(217,115,32,0.25) 50%,transparent 100%);
+                       height:1px;font-size:0;line-height:0;">&nbsp;</td>
+          </tr>
+
+          <tr>
+            <td class="content-pad" style="padding:44px 48px 36px;text-align:center;">
+
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 28px;">
+                <tr>
+                  <td style="width:72px;height:72px;border-radius:50%;
+                             background:rgba(217,115,32,0.12);
+                             border:1.5px solid rgba(217,115,32,0.30);
+                             text-align:center;vertical-align:middle;font-size:32px;line-height:72px;">
+                    🔐
+                  </td>
+                </tr>
+              </table>
+
+              <h2 style="margin:0 0 10px;color:#f2f2f2;font-size:24px;font-weight:700;
+                         letter-spacing:-0.3px;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+                Redefinição de senha
+              </h2>
+
+              <p style="margin:0 0 8px;color:#b0b0b0;font-size:15px;line-height:1.6;
+                        font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+                Olá,&nbsp;<strong style="color:#f2f2f2;font-weight:600;" th:text="${nomeUsuario}">Usuário</strong>!
+              </p>
+              <p style="margin:0 0 36px;color:#909090;font-size:15px;line-height:1.7;
+                        font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+                Recebemos uma solicitação para redefinir a senha da sua conta&nbsp;BeachUp.<br />
+                Clique no botão abaixo para criar uma nova senha.
+              </p>
+
+              <!--[if mso]>
+            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml"
+                         xmlns:w="urn:schemas-microsoft-com:office:word"
+                         href="#" style="height:50px;v-text-anchor:middle;width:230px;"
+                         arcsize="22%" strokecolor="#c96010" fillcolor="#d97320">
+              <w:anchorlock/>
+              <center style="color:#ffffff;font-family:'Segoe UI',Helvetica,Arial,sans-serif;
+                               font-size:15px;font-weight:700;letter-spacing:0.3px;">
+                Redefinir minha senha
+              </center>
+            </v:roundrect>
+            <![endif]-->
+
+              <!--[if !mso]><!-->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                <tr>
+                  <td style="border-radius:12px;
+                             background:linear-gradient(135deg,#e07a20 0%,#c06010 100%);
+                             box-shadow:0 6px 24px rgba(210,100,20,0.45),
+                                        0 1px 4px rgba(0,0,0,0.30);">
+                    <a class="cta-btn" th:href="${linkRedefinicao}" href="#" style="display:inline-block;
+                              background:linear-gradient(135deg,#e07a20 0%,#c06010 100%);
+                              color:#ffffff;text-decoration:none;
+                              font-size:15px;font-weight:700;
+                              padding:15px 44px;border-radius:12px;
+                              letter-spacing:0.4px;
+                              font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+                      Redefinir minha senha
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <!--<![endif]-->
+
+              <p style="margin:32px 0 8px;color:#666666;font-size:12px;
+                        font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+                Se o botão não funcionar, copie e cole este link no navegador:
+              </p>
+              <div style="background:rgba(255,255,255,0.04);
+                          border:1px solid rgba(255,255,255,0.08);
+                          border-radius:10px;padding:13px 18px;
+                          word-break:break-all;font-size:11.5px;
+                          color:#888888;font-family:ui-monospace,'Cascadia Code',
+                          'Fira Code',monospace;text-align:left;line-height:1.6;" th:text="${linkRedefinicao}">
+                https://beachup.com/redefinir-senha?token=exemplo
+              </div>
+
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:32px;">
+                <tr>
+                  <td style="background:rgba(217,115,32,0.07);
+                             border:1px solid rgba(217,115,32,0.20);
+                             border-radius:12px;
+                             padding:16px 20px;text-align:left;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td style="width:28px;vertical-align:top;font-size:16px;
+                                   padding-top:1px;padding-right:10px;">
+                          ⏱️
+                        </td>
+                        <td>
+                          <p style="margin:0;color:#999999;font-size:13px;line-height:1.65;
+                                    font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+                            Este link é válido por
+                            <strong style="color:#d97320;font-weight:600;">30 minutos</strong>
+                            e pode ser utilizado apenas uma vez.<br />
+                            Se você não solicitou essa alteração, desconsidere este e-mail
+                            — sua conta permanece segura.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:0 48px;">
+              <div style="height:1px;background:rgba(255,255,255,0.06);font-size:0;line-height:0;">&nbsp;</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="email-footer-cell footer-pad" style="background-color:#121212;padding:22px 48px 26px;text-align:center;
+                       border-radius:0 0 20px 20px;">
+
+              <p style="margin:0 0 10px;font-size:12px;color:#444444;
+                        font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+                <a href="#" style="color:#666666;text-decoration:none;">Central de Ajuda</a>
+                &nbsp;&nbsp;·&nbsp;&nbsp;
+                <a href="#" style="color:#666666;text-decoration:none;">Política de Privacidade</a>
+                &nbsp;&nbsp;·&nbsp;&nbsp;
+                <a href="#" style="color:#666666;text-decoration:none;">Contato</a>
+              </p>
+
+              <p style="margin:0 0 4px;color:#404040;font-size:11.5px;
+                        font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+                Este é um e-mail automático — por favor, não responda a esta mensagem.
+              </p>
+              <p style="margin:0;color:#383838;font-size:11.5px;
+                        font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+                &copy; 2026 BeachUp. Todos os direitos reservados.
+              </p>
+
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+
+</html>

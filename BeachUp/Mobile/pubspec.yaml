@@ -1,0 +1,51 @@
+name: flutter_application_1
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  http: ^1.2.0
+  http_parser: ^4.0.2
+  image_picker: ^1.1.2
+  shared_preferences: ^2.2.2
+  cpf_cnpj_validator: ^2.0.0
+  flutter_svg: ^2.2.0
+  slide_to_act: ^2.0.2
+  url_launcher: ^6.2.5
+  geolocator: ^12.0.0
+  cached_network_image: ^3.4.1   
+
+  mask_text_input_formatter: ^2.9.0
+  provider: ^6.1.5+1
+  flutter_custom_tabs: ^2.5.0
+  app_links: ^6.3.2
+
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.14.3
+  rename_app: ^1.6.1
+  flutter_lints: ^6.0.0
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icon.png"
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+  

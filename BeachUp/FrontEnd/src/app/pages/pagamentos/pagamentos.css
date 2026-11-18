@@ -1,0 +1,278 @@
+.pagamentos-wrapper {
+  min-height: 100vh;
+  background: #0a0a0a;
+}
+
+.pagamentos-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 110px 24px 80px;
+}
+
+.section-header {
+  max-width: 780px;
+  margin: 0 auto 54px;
+  text-align: center;
+}
+
+.section-badge {
+  background: rgba(255, 140, 0, 0.14);
+  color: #ffb347;
+  display: inline-block;
+  border: 1px solid rgba(255, 140, 0, 0.2);
+  padding: 8px 13px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  margin-bottom: 18px;
+}
+
+.section-header h2 {
+  margin: 0 0 14px;
+  font-size: 38px;
+  line-height: 1.18;
+  color: #ff8c00;
+}
+
+.section-header p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.status-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: linear-gradient(145deg, #111, #1a1a1a);
+  border: 1px solid #2a2a2a;
+  border-radius: 18px;
+  padding: 28px 30px;
+  margin: 0 auto 60px;
+  max-width: 900px;
+}
+
+.status-card--ok {
+  border-color: rgba(74, 222, 128, 0.25);
+  background: linear-gradient(145deg, #0f1a12, #131a13);
+}
+
+.status-card--pendente {
+  border-color: rgba(245, 158, 11, 0.25);
+  background: linear-gradient(145deg, #1a140a, #1a1610);
+}
+
+.status-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.status-icon--ok {
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ade80;
+}
+
+.status-icon--pendente {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+.status-texto {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-texto strong {
+  font-size: 16px;
+  color: #fff;
+}
+
+.status-texto span {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.btn-conectar,
+.btn-reconectar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 22px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-conectar {
+  background: linear-gradient(135deg, #ff9f1c, #d97706);
+}
+
+.btn-conectar:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(217, 119, 6, 0.35);
+}
+
+.btn-reconectar {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.btn-reconectar:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.btn-conectar:disabled,
+.btn-reconectar:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.sk-card {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sk {
+  background: linear-gradient(90deg, #1c1c1c 25%, #262626 37%, #1c1c1c 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 8px;
+}
+
+.sk-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+}
+
+.sk-title {
+  width: 220px;
+  height: 16px;
+}
+
+.sk-line {
+  width: 80%;
+  height: 12px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.como-funciona {
+  margin-bottom: 56px;
+}
+
+.passos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.passo-card {
+  background: linear-gradient(145deg, #111, #1a1a1a);
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 26px 22px;
+  color: #fff;
+}
+
+.passo-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 140, 0, 0.12);
+  color: #ffb347;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.passo-card h3 {
+  font-size: 15px;
+  margin: 0 0 8px;
+  color: #fff;
+}
+
+.passo-card p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
+.aviso-seguranca {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px 22px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+}
+
+.aviso-seguranca i {
+  color: #60a5fa;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 860px) {
+  .passos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .pagamentos-content {
+    padding: 90px 16px 60px;
+  }
+
+  .section-header h2 {
+    font-size: 28px;
+  }
+
+  .status-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-conectar,
+  .btn-reconectar {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,385 @@
+<div class="pf-wrapper">
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  <div class="pf-body">
+
+    @if (carregando) {
+    <div class="pf-loading">
+      <div class="pf-spinner"></div>
+      <span>Carregando perfil...</span>
+    </div>
+    } @else {
+
+    <div class="pf-hero">
+      <div class="pf-hero-bg"></div>
+      <div class="pf-hero-content">
+        <div class="pf-avatar-wrap">
+          <div class="pf-avatar" [class.has-photo]="fotoExibida">
+            @if (fotoExibida) {
+            <img [src]="fotoExibida" alt="Foto de perfil" class="pf-avatar-img" />
+            } @else {
+            <i class="bi bi-person-fill"></i>
+            }
+          </div>
+          <div class="pf-avatar-ring"></div>
+        </div>
+
+        <div class="pf-hero-info">
+          <div class="pf-hero-top">
+            <div class="pf-badges">
+              <span class="pf-role-badge" [class.empresa]="isEmpresa">
+                @if (isJogador) { <i class="bi bi-person-fill"></i> }
+                @else { <i class="bi bi-building"></i> }
+                {{ roleLabel }}
+              </span>
+
+              @if (isEmpresa && planoBadge) {
+              <span class="pf-plano-badge" [class.premium]="planoBadge === 'PREMIUM'">
+                @if (planoBadge === 'PREMIUM') { <i class="bi bi-star-fill"></i> Premium }
+                @else { Gratuito }
+              </span>
+              }
+            </div>
+
+            <div class="nomeExibido">
+              <h1 class="pf-nome">{{ nomeExibido }}</h1>
+            </div>
+
+          </div>
+          <p class="pf-email">
+            <i class="bi bi-envelope"></i> {{ emailExibido }}
+            <span class="pf-sep">·</span>
+            <i class="bi bi-calendar3"></i> {{membroDesde}}
+          </p>
+        </div>
+
+        <div class="pf-hero-actions">
+          <button class="pf-btn-edit" (click)="abrirEdicao()">
+            <i class="bi bi-pencil"></i> Editar perfil
+          </button>
+          <button class="pf-btn-logout" (click)="confirmarSair()">
+            <i class="bi bi-box-arrow-right"></i> Sair
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pf-kpi-row">
+      <div class="pf-kpi">
+        <div class="pf-kpi-header">
+          <span class="pf-kpi-label">Reservas no mês</span>
+          <div class="pf-kpi-icon"><i class="bi bi-calendar-check"></i></div>
+        </div>
+        <div class="pf-kpi-value">{{ totalReservasMes }}</div>
+        <div class="pf-kpi-sub up" *ngIf="totalReservasMes > 0">{{ totalReservasMes }} este mês</div>
+      </div>
+      <div class="pf-kpi">
+        <div class="pf-kpi-header">
+          <span class="pf-kpi-label">Quadras ativas</span>
+          <div class="pf-kpi-icon"><i class="bi bi-geo-alt-fill"></i></div>
+        </div>
+        <div class="pf-kpi-value">{{ isEmpresa ? totalQuadrasAtivas : totalReservasMes }}</div>
+        <div class="pf-kpi-sub neutral">{{ isEmpresa ? "Todas operando" : "reservas totais" }}</div>
+      </div>
+      <div class="pf-kpi">
+        <div class="pf-kpi-header">
+          <span class="pf-kpi-label">{{ isEmpresa ? "Taxa de ocupação" : "Plano atual" }}</span>
+          <div class="pf-kpi-icon"><i class="bi bi-graph-up-arrow"></i></div>
+        </div>
+        <div class="pf-kpi-value">{{ isEmpresa ? taxaOcupacao + "%" : planoBadge || "—" }}</div>
+        <div class="pf-kpi-sub up" *ngIf="isEmpresa &amp;&amp; taxaOcupacao > 0">média de ocupação</div>
+      </div>
+    </div>
+
+    <div class="pf-cards">
+
+      <div class="pf-card">
+        <div class="pf-card-header">
+          <div class="pf-card-icon"><i class="bi bi-person-vcard"></i></div>
+          <h2 class="pf-card-title">Dados pessoais</h2>
+        </div>
+
+        <div class="pf-card-body">
+          <div class="pf-field">
+            <span class="pf-field-label">Nome completo</span>
+            <span class="pf-field-value">{{ nomeExibido }}</span>
+          </div>
+
+          <div class="pf-field">
+            <span class="pf-field-label">E-mail</span>
+            <span class="pf-field-value">{{ emailExibido }}</span>
+          </div>
+
+          <div class="pf-field">
+            <span class="pf-field-label">{{ labelDocumento }}</span>
+            <span class="pf-field-value doc">{{ documentoExibido }}</span>
+          </div>
+
+          <div class="pf-field">
+            <span class="pf-field-label">Tipo de usuário</span>
+            {{ roleLabel }}
+          </div>
+
+        </div>
+      </div>
+
+      <div class="pf-card">
+        <div class="pf-card-header">
+          <div class="pf-card-icon"><i class="bi bi-shield-check"></i></div>
+          <h2 class="pf-card-title">Conta</h2>
+        </div>
+        <div class="pf-card-body">
+          <div class="pf-field">
+            <span class="pf-field-label">Tipo de conta</span>
+            <span class="pf-field-value">{{ roleLabel }}</span>
+          </div>
+          <div class="pf-field">
+            <span class="pf-field-label">Status</span>
+            <span class="pf-field-value status-ativo">
+              <i class="bi bi-circle-fill"></i> Ativa
+            </span>
+          </div>
+
+          @if (isEmpresa && planoBadge) {
+          <div class="pf-field">
+            <span class="pf-field-label">Plano atual</span>
+            <span class="pf-field-value" [class.premium-text]="planoBadge === 'PREMIUM'">
+              {{ planoBadge === 'PREMIUM' ? '⭐ Premium' : 'Gratuito' }}
+            </span>
+          </div>
+          }
+          <div class="pf-field">
+            <span class="pf-field-label">Membro desde</span>
+            {{ membroDesde }}
+          </div>
+        </div>
+        @if (isEmpresa) {
+        <button class="pf-btn-upgrade" (click)="navigation.irPara('planos')">
+          <i class="bi bi-crown-fill"></i>
+          Fazer upgrade para Pro
+          <i class="bi bi-chevron-right ms-auto"></i>
+        </button>
+        }
+      </div>
+
+      <div class="pf-card pf-card-atalhos">
+        <div class="pf-card-header">
+          <div class="pf-card-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+          <h2 class="pf-card-title">Acessar rapidamente</h2>
+        </div>
+        <div class="pf-atalhos">
+          @if (isJogador) {
+          <button class="pf-atalho" (click)="navigation.irPara('reservas')">
+            <div class="pf-atalho-left">
+              <div class="pf-atalho-icon"><i class="bi bi-calendar-plus"></i></div>
+              <div class="pf-atalho-texts">
+                <span class="pf-atalho-nome">Nova reserva</span>
+                <span class="pf-atalho-desc">Reservar quadra</span>
+              </div>
+            </div>
+            <i class="bi bi-chevron-right pf-atalho-arrow"></i>
+          </button>
+
+          <button class="pf-atalho" (click)="navigation.irPara('minhas-reservas')">
+            <div class="pf-atalho-left">
+              <div class="pf-atalho-icon"><i class="bi bi-calendar-check"></i></div>
+              <div class="pf-atalho-texts">
+                <span class="pf-atalho-nome">Minhas reservas</span>
+                <span class="pf-atalho-desc">Ver histórico</span>
+              </div>
+            </div>
+            <i class="bi bi-chevron-right pf-atalho-arrow"></i>
+          </button>
+
+          <button class="pf-atalho" (click)="navigation.irPara('convidar-jogadores')">
+            <div class="pf-atalho-left">
+              <div class="pf-atalho-icon"><i class="bi bi-people-fill"></i></div>
+              <div class="pf-atalho-texts">
+                <span class="pf-atalho-nome">Meu time</span>
+                <span class="pf-atalho-desc">Convidar jogadores</span>
+              </div>
+            </div>
+            <i class="bi bi-chevron-right pf-atalho-arrow"></i>
+          </button>
+
+          }
+          @if (isEmpresa) {
+          <button class="pf-atalho" (click)="navigation.irPara('dashboard-dono')">
+            <div class="pf-atalho-left">
+              <div class="pf-atalho-icon"><i class="bi bi-speedometer2"></i></div>
+              <div class="pf-atalho-texts">
+                <span class="pf-atalho-nome">Dashboard</span>
+                <span class="pf-atalho-desc">Visão geral</span>
+              </div>
+            </div>
+            <i class="bi bi-chevron-right pf-atalho-arrow"></i>
+          </button>
+          <button class="pf-atalho" (click)="navigation.irPara('reservas')">
+            <div class="pf-atalho-left">
+              <div class="pf-atalho-icon"><i class="bi bi-calendar-check"></i></div>
+              <div class="pf-atalho-texts">
+                <span class="pf-atalho-nome">Reservas</span>
+                <span class="pf-atalho-desc">Gerenciar</span>
+              </div>
+            </div>
+            <i class="bi bi-chevron-right pf-atalho-arrow"></i>
+          </button>
+          <button class="pf-atalho" (click)="navigation.irPara('quadras-dono')">
+            <div class="pf-atalho-left">
+              <div class="pf-atalho-icon"><i class="bi bi-geo-alt-fill"></i></div>
+              <div class="pf-atalho-texts">
+                <span class="pf-atalho-nome">Quadras</span>
+                <span class="pf-atalho-desc">3 ativas</span>
+              </div>
+            </div>
+            <i class="bi bi-chevron-right pf-atalho-arrow"></i>
+          </button>
+          <button class="pf-atalho" (click)="navigation.irPara('suporte')">
+            <div class="pf-atalho-left">
+              <div class="pf-atalho-icon"><i class="bi bi-headset"></i></div>
+              <div class="pf-atalho-texts">
+                <span class="pf-atalho-nome">Suporte</span>
+                <span class="pf-atalho-desc">Fale conosco</span>
+              </div>
+            </div>
+            <i class="bi bi-chevron-right pf-atalho-arrow"></i>
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="pf-atividade">
+      <div class="pf-atividade-header">
+        <span class="pf-atividade-title">Atividade recente</span>
+        <button class="pf-ver-tudo" (click)="abrirModalAtividade()">Ver tudo</button>
+
+        @if (modalAtividadeAberto) {
+        <div class="pf-modal-overlay" (click)="fecharModalAtividade()">
+          <div class="pf-modal pf-modal-atividade" (click)="$event.stopPropagation()">
+            <div class="pf-modal-header">
+              <div>
+                <h3 class="pf-modal-title"><i class="bi bi-clock-history"></i> Histórico de atividades</h3>
+                <p class="pf-modal-sub">{{ todasAtividades.length }} evento{{ todasAtividades.length !== 1 ? 's' : '' }}
+                  registrado{{ todasAtividades.length !== 1 ? 's' : '' }}</p>
+              </div>
+              <button class="pf-modal-close" (click)="fecharModalAtividade()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="pf-modal-ativ-body">
+              @if (todasAtividades.length === 0) {
+              <div class="pf-atividade-vazia">
+                <i class="bi bi-clock-history"></i>
+                <span>Nenhuma atividade registrada ainda.</span>
+              </div>
+              } @else {
+              <div class="pf-ativ-timeline">
+                @for (ev of todasAtividades; track $index) {
+                <div class="pf-ativ-tl-item">
+                  <div class="pf-ativ-tl-linha">
+                    <div class="pf-ativ-icon" [ngClass]="iconClass(ev.tipo)">
+                      <i class="bi bi-star"></i>
+                    </div>
+                    <div class="pf-ativ-tl-connector"></div>
+                  </div>
+                  <div class="pf-ativ-tl-conteudo">
+                    <div class="pf-ativ-tl-topo">
+                      <span class="pf-ativ-titulo">{{ ev.titulo }}</span>
+                      <span class="pf-ativ-badge" [ngClass]="badgeClass(ev.tipo)">{{ ev.badge }}</span>
+                    </div>
+                    <span class="pf-ativ-sub">{{ ev.sub }}</span>
+                  </div>
+                </div>
+                }
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      <div class="pf-atividade-list">
+        <div class="pf-ativ-item" *ngFor="let ev of eventoAtividade">
+          <div class="pf-ativ-icon" [ngClass]="iconClass(ev.tipo)">
+            <i class="bi bi-star"></i>
+          </div>
+          <div class="pf-ativ-info">
+            <span class="pf-ativ-titulo">{{ ev.titulo }}</span>
+            <span class="pf-ativ-sub">{{ ev.sub }}</span>
+          </div>
+          <span class="pf-ativ-badge" [ngClass]="badgeClass(ev.tipo)">{{ ev.badge }}</span>
+        </div>
+        <div class="pf-atividade-vazia" *ngIf="eventoAtividade.length === 0">
+          <i class="bi bi-clock-history"></i>
+          <span>Nenhuma atividade recente.</span>
+        </div>
+      </div>
+    </div>
+
+    }
+  </div>
+</div>
+
+@if (modalEdicaoAberto) {
+<div class="pf-modal-overlay" (click)="fecharEdicao()">
+  <div class="pf-modal" (click)="$event.stopPropagation()">
+    <div class="pf-modal-header">
+      <div>
+        <h3 class="pf-modal-title">Editar perfil</h3>
+        <p class="pf-modal-sub">Atualize suas informações</p>
+      </div>
+      <button class="pf-modal-close" (click)="fecharEdicao()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form [formGroup]="editForm" (ngSubmit)="salvarEdicao()" class="pf-modal-form">
+      <div class="pf-foto-edit">
+        <div class="pf-foto-edit-avatar">
+          @if (previewFoto || fotoExibida) { <img [src]="previewFoto ?? fotoExibida" alt="Foto" /> }
+          @else { <i class="bi bi-person-fill"></i> }
+        </div>
+        <div class="pf-foto-edit-actions">
+          <label for="pf-input-foto" class="pf-btn-foto">
+            <i class="bi bi-camera-fill"></i>
+            {{ fotoExibida || previewFoto ? 'Trocar foto' : 'Adicionar foto' }}
+          </label>
+          <input id="pf-input-foto" type="file" accept="image/*" (change)="selecionarFoto($event)" hidden />
+          <span class="pf-foto-hint">JPG ou PNG, até 5MB</span>
+        </div>
+      </div>
+      <div class="pf-form-group" [class.invalid]="campoInvalido('nome')">
+        <label>Nome completo</label>
+        <input type="text" formControlName="nome" placeholder="Seu nome" />
+        @if (campoInvalido('nome')) { <span class="pf-field-error">Informe um nome válido.</span> }
+      </div>
+      <div class="pf-form-group" [class.invalid]="campoInvalido('email')">
+        <label>E-mail</label>
+        <input type="email" formControlName="email" placeholder="seu@email.com" />
+        @if (campoInvalido('email')) { <span class="pf-field-error">Informe um e-mail válido.</span> }
+      </div>
+      <div class="pf-form-group" [class.invalid]="campoInvalido('documento')">
+        <label>{{ labelDocumento }}</label>
+        <input type="text" formControlName="documento" [mask]="mascaraDocumento" [dropSpecialCharacters]="true"
+          [placeholder]="isJogador ? 'Seu CPF' : 'CNPJ da empresa'" />
+        @if (campoInvalido('documento')) { <span class="pf-field-error">Informe um {{ labelDocumento }} válido.</span> }
+      </div>
+
+      @if (editForm.get('senha')?.value) {
+      <div class="pf-form-group">
+        <label>Confirmar nova senha</label>
+        <input [type]="mostrarSenha ? 'text' : 'password'" formControlName="confirmarSenha"
+          placeholder="Repita a nova senha" />
+      </div>
+      @if (editForm.hasError('senhasDiferentes')) {
+      <div class="alert alert-danger">As senhas não coincidem.</div>
+      }
+      }
+      <div class="pf-modal-actions">
+        <button type="button" class="pf-btn-secondary" (click)="fecharEdicao()">Cancelar</button>
+        <button type="submit" class="pf-btn-primary" [disabled]="salvando">
+          @if (!salvando) { <i class="bi bi-check-lg"></i> Salvar alterações }
+          @else { <i class="bi bi-hourglass-split"></i> Salvando... }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}

@@ -1,0 +1,538 @@
+<div class="rv-wrapper">
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  <div class="mp-aviso" *ngIf="mpConectada === false">
+    <div class="mp-aviso-conteudo">
+      <div class="mp-aviso-icone"><i class="bi bi-exclamation-triangle-fill"></i></div>
+      <div class="mp-aviso-texto">
+        <strong>Conta de pagamento não configurada</strong>
+        <span>Conecte sua conta do Mercado Pago para receber pagamentos das reservas diretamente.</span>
+      </div>
+      <button class="mp-aviso-btn" (click)="conectarMercadoPago()">
+        <i class="bi bi-link-45deg"></i> Conectar agora
+      </button>
+    </div>
+  </div>
+
+  <div class="arenas-bar" *ngIf="!carregandoArenas && arenas.length === 0">
+    <div class="arena-vazia">
+      <i class="bi bi-building-x"></i> Nenhuma arena cadastrada.
+      <button class="btn-link" (click)="irPara('arena')">Cadastrar agora →</button>
+    </div>
+  </div>
+
+  <div class="arenas-bar" *ngIf="carregandoArenas">
+    <div class="skeleton-chip"></div>
+    <div class="skeleton-chip"></div>
+  </div>
+
+  <section class="cards" *ngIf="arenaSelecionada">
+    <div class="card">
+      <div class="card-label"><i class="bi bi-grid-fill"></i> Quadras cadastradas</div>
+      <div class="card-value">{{ quadras.length }}</div>
+      <div class="card-sub" *ngIf="assinatura">Plano {{ assinatura.tipoPlano }}<span *ngIf="assinatura.limiteQuadras"> ·
+          limite {{ assinatura.limiteQuadras }}</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label"><i class="bi bi-currency-dollar"></i> Faturamento hoje</div>
+      <div class="card-value">{{ formatarValor(totalHoje()) }}</div>
+      <div class="card-sub">reservas confirmadas</div>
+    </div>
+    <div class="card">
+      <div class="card-label"><i class="bi bi-hourglass-split"></i> Reservas pendentes</div>
+      <div class="card-value">{{ reservasPendentes().length }}</div>
+      <div class="card-trend" *ngIf="reservasPendentes().length > 0">aguardando confirmação</div>
+      <div class="card-sub" *ngIf="reservasPendentes().length === 0">tudo confirmado ✓</div>
+    </div>
+    <div class="card card-arenas">
+      <div class="card-label"><i class="bi bi-building"></i> Arenas ativas</div>
+      <div class="card-value">{{ arenas.length }}</div>
+      <div class="card-arenas-list">
+        <div class="card-arena-item" *ngFor="let a of arenas"
+          [class.card-arena-item--ativa]="a.id === arenaSelecionadaId" (click)="selecionarArena(a.id)">
+          <div class="card-arena-foto" *ngIf="getFotoUrl(a) as foto; else semFotoCard">
+            <img [src]="foto" [alt]="a.nome" />
+          </div>
+          <ng-template #semFotoCard>
+            <div class="card-arena-foto card-arena-foto--empty">
+              <i class="bi bi-geo-alt-fill"></i>
+            </div>
+          </ng-template>
+          <div class="card-arena-info">
+            <span class="card-arena-nome">{{ a.nome }}</span>
+            <span class="card-arena-sub">{{ quadrasPorArena.get(a.id) ?? 0 }} quadra{{ (quadrasPorArena.get(a.id) ?? 0)
+              !== 1 ? 's' : '' }} · {{ a.endereco?.cidade }}/{{ a.endereco?.estado }}</span>
+          </div>
+          <i class="bi bi-chevron-right card-arena-chevron"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="conteudo" *ngIf="abaAtiva === 'quadras'">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title"><i class="bi bi-building"></i> Arenas Cadastradas</span>
+        <button class="btn-primary btn-sm" (click)="irPara('arena')"><i class="bi bi-plus"></i> Nova arena</button>
+      </div>
+      <div class="loading-row" *ngIf="carregandoArenas">
+        <div class="spinner-border text-secondary spinner-sm"></div><span>Carregando arenas...</span>
+      </div>
+      <div class="empty-state" *ngIf="!carregandoArenas && arenas.length === 0">
+        <i class="bi bi-building-x"></i>
+        <p>Nenhuma arena cadastrada.</p>
+        <button class="btn-primary" (click)="irPara('arena')">Cadastrar primeira arena</button>
+      </div>
+
+      <div class="quadras-grid" *ngIf="!carregandoArenas && arenas.length > 0">
+        <div class="quadra-card" *ngFor="let a of arenas" (click)="abrirModalQuadras(a)" style="cursor:pointer">
+
+          <!-- Foto da arena -->
+          <div class="qcard-top">
+            <div class="qcard-foto" *ngIf="isBrowser && getFotoUrl(a) as foto; else semFoto">
+              <img [src]="foto" [alt]="a.nome" class="qcard-img" />
+            </div>
+            <ng-template #semFoto>
+              <div class="qcard-icon"><i class="bi bi-geo-alt-fill"></i></div>
+            </ng-template>
+          </div>
+
+          <div class="qcard-body">
+            <h4 class="qcard-nome">{{ a.nome }}</h4>
+            <span class="qcard-descricao">{{ a.descricao }}</span>
+
+            <div class="qcard-endereco" *ngIf="a.endereco">
+              <a [href]="mapsUrl(a)" target="_blank" class="qcard-maps-link" (click)="$event.stopPropagation()">
+                <i class="bi bi-geo-alt-fill"></i>
+                {{ a.endereco.logradouro }}, {{ a.endereco.numero }} — {{ a.endereco.cidade }}/{{ a.endereco.estado }}
+                <i class="bi bi-box-arrow-up-right"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="qcard-footer">
+            <div class="qcard-acoes">
+              <button class="btn-acao btn-reservas" (click)="abrirModalQuadras(a);$event.stopPropagation()">
+                <i class="bi bi-grid-fill"></i> Ver quadras
+              </button>
+              <button class="btn-acao btn-horarios" (click)="abrirModalHorarios(a);$event.stopPropagation()">
+                <i class="bi bi-clock-history"></i> Horários
+              </button>
+            </div>
+            <div class="qcard-acoes-secundarias">
+              <label class="btn-acao btn-edit" [for]="'foto-arena-' + a.id" title="Trocar foto"
+                (click)="$event.stopPropagation()">
+                <i class="bi bi-camera"></i>
+              </label>
+              <input [id]="'foto-arena-' + a.id" type="file" accept="image/*" hidden (click)="$event.stopPropagation()"
+                (change)="trocarFotoArena(a,$event)" />
+              <button class="btn-acao btn-edit" (click)="abrirModalEdicaoArena(a);$event.stopPropagation()"
+                title="Editar arena">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn-acao btn-del" (click)="excluirArena(a);$event.stopPropagation()" title="Excluir arena">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="conteudo" *ngIf="abaAtiva === 'reservas'">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title"><i class="bi bi-calendar3"></i> Reservas por quadra</span>
+      </div>
+      <div class="empty-state" *ngIf="quadras.length === 0"><i class="bi bi-calendar-x"></i>
+        <p>Cadastre uma quadra para ver suas reservas.</p>
+      </div>
+      <div class="quadras-lista" *ngIf="quadras.length > 0">
+        <div class="quadra-linha" *ngFor="let q of quadras" (click)="abrirReservas(q)">
+          <div class="ql-left">
+            <i [class]="q.tipoCobertura === 'COBERTA' ? 'bi bi-house-fill' : 'bi bi-sun-fill'" class="ql-icon"></i>
+            <div>
+              <span class="ql-nome">{{ q.nome }}</span>
+              <span class="ql-sub">{{ formatarValor(q.valorHora) }}/hora · {{ q.tipoCobertura === 'COBERTA' ? 'Coberta'
+                : 'Descoberta' }}</span>
+            </div>
+          </div>
+          <button class="btn-primary btn-sm">Ver reservas <i class="bi bi-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="conteudo" *ngIf="abaAtiva === 'plano'">
+    <div class="panel plano-panel" *ngIf="assinatura">
+      <div class="plano-header">
+        <div class="plano-badge" [class.premium]="assinatura.premiumAtivo">
+          <i [class]="assinatura.premiumAtivo ? 'bi bi-star-fill' : 'bi bi-star'"></i> Plano {{ assinatura.nome }}
+        </div>
+        <span class="plano-status" [class.ativo]="assinatura.status === 'ATIVA'">{{ assinatura.status }}</span>
+      </div>
+      <div class="plano-info-grid">
+        <div class="plano-info-item"><span class="pi-label">Quadras permitidas</span><span class="pi-valor">{{
+            assinatura.limiteQuadras ?? 'Ilimitadas' }}</span></div>
+        <div class="plano-info-item"><span class="pi-label">Valor mensal</span><span class="pi-valor">{{
+            assinatura.valorMensal === 0 ? 'Grátis' : formatarValor(assinatura.valorMensal) }}</span></div>
+        <div class="plano-info-item"><span class="pi-label">Início</span><span class="pi-valor">{{
+            formatarData(assinatura.dataInicio) }}</span></div>
+        <div class="plano-info-item" *ngIf="assinatura.dataFim"><span class="pi-label">Validade</span><span
+            class="pi-valor">{{ formatarData(assinatura.dataFim) }}</span></div>
+      </div>
+      <div class="plano-upgrade" *ngIf="!assinatura.premiumAtivo">
+        <div class="upgrade-box"><i class="bi bi-lightning-charge-fill"></i>
+          <div>
+            <h4>Upgrade para Premium</h4>
+            <p>Quadras ilimitadas por R$ 199,90/mês.</p>
+          </div><button class="btn-upgrade" (click)="fazerUpgrade()">Fazer upgrade</button>
+        </div>
+      </div>
+      <div class="plano-upgrade" *ngIf="assinatura.premiumAtivo">
+        <div class="upgrade-box premium-ativo"><i class="bi bi-check-circle-fill"></i>
+          <div>
+            <h4>Premium ativo</h4>
+            <p>Acesso a quadras ilimitadas e todos os recursos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal-overlay" *ngIf="modalQuadrasAberto" (click)="fecharModalQuadras()">
+    <div class="modal-box modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="bi bi-geo-alt-fill"></i> Quadras — {{ arenaModalSelecionada?.nome }}</h3>
+        <button class="modal-close" (click)="fecharModalQuadras()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="panel-header" style="padding:0 0 16px 0">
+          <span class="panel-title">{{ quadras.length }} quadra{{ quadras.length !== 1 ? 's' : '' }}</span>
+          <button class="btn-primary btn-sm" (click)="abrirModalNovaQuadra()"><i class="bi bi-plus"></i> Nova
+            quadra</button>
+        </div>
+        <div class="loading-row" *ngIf="carregandoQuadras">
+          <div class="spinner-border text-secondary spinner-sm"></div><span>Carregando quadras...</span>
+        </div>
+        <div class="empty-state sm" *ngIf="!carregandoQuadras && quadras.length === 0">
+          <i class="bi bi-grid-x"></i>
+          <p>Nenhuma quadra cadastrada nesta arena.</p>
+          <button class="btn-primary" (click)="abrirModalNovaQuadra()">Cadastrar primeira quadra</button>
+        </div>
+        <div class="quadras-grid" *ngIf="!carregandoQuadras && quadras.length > 0">
+          <div class="quadra-card" *ngFor="let q of quadras">
+            <div class="qcard-top" (click)="abrirDetalhe(q)" style="cursor:pointer">
+              <div class="qcard-foto" *ngIf="isBrowser && getFotoQuadraUrl(q) as fotoUrl">
+                <img [src]="fotoUrl" [alt]="q.nome" class="qcard-img" />
+                <div class="qcard-foto-count" *ngIf="(q.fotos?.length ?? 0) > 1">
+                  <i class="bi bi-images"></i> {{ q.fotos!.length }}
+                </div>
+              </div>
+              <div class="qcard-icon" *ngIf="!getFotoQuadraUrl(q)">
+                <i [class]="q.tipoCobertura === 'COBERTA' ? 'bi bi-house-fill' : 'bi bi-sun-fill'"></i>
+              </div>
+              <span class="qcard-tipo" [class.tipo-coberta]="q.tipoCobertura === 'COBERTA'"
+                [class.tipo-descoberta]="q.tipoCobertura === 'DESCOBERTA'">
+                {{ q.tipoCobertura === 'COBERTA' ? 'Coberta' : 'Descoberta' }}
+              </span>
+            </div>
+            <h4 class="qcard-nome">{{ q.nome }}</h4>
+            <div class="qcard-valor">{{ formatarValor(q.valorHora) }} <span>/hora</span></div>
+            <div class="qcard-acoes">
+              <button class="btn-acao btn-reservas" (click)="abrirReservas(q)"><i class="bi bi-calendar3"></i> Ver
+                reservas</button>
+              <button class="btn-acao btn-edit" (click)="abrirModalEdicao(q)"><i class="bi bi-pencil"></i></button>
+              <button class="btn-acao btn-del" (click)="excluirQuadra(q)"><i class="bi bi-trash"></i></button>
+              <label class="btn-acao btn-foto-quadra" [for]="'foto-q-'+q.id" title="Adicionar foto">
+                <span *ngIf="salvandoFotoQuadraId !== q.id"><i class="bi bi-camera"></i></span>
+                <span *ngIf="salvandoFotoQuadraId === q.id"><span
+                    class="spinner-border spinner-border-sm"></span></span>
+                <input [id]="'foto-q-'+q.id" type="file" accept="image/*" hidden
+                  (change)="adicionarFotoQuadra($event,q)" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="modalDetalheAberto" (click)="fecharDetalhe()">
+    <div class="modal-box modal-detalhe" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="bi bi-grid-fill me-2"></i>{{ quadraDetalhe?.nome }}</h3>
+        <button class="modal-close" (click)="fecharDetalhe()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modal-body" style="padding:0">
+        <div class="carrossel" *ngIf="(quadraDetalhe?.fotos?.length ?? 0) > 0">
+          <div class="carrossel-stage">
+            <ng-container *ngIf="isBrowser">
+              <img *ngFor="let fotoUrl of quadraDetalhe!.fotos; let i = index" [src]="fotoUrlCompleta(fotoUrl)"
+                [alt]="quadraDetalhe!.nome" class="carrossel-img" [class.carrossel-img--ativo]="i === carrosselIndex" />
+            </ng-container>
+            <button class="carrossel-seta carrossel-seta--prev" (click)="carrosselAnterior()"
+              *ngIf="(quadraDetalhe?.fotos?.length ?? 0) > 1">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="carrossel-seta carrossel-seta--next" (click)="carrosselProximo()"
+              *ngIf="(quadraDetalhe?.fotos?.length ?? 0) > 1">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+            <div class="carrossel-contador" *ngIf="(quadraDetalhe?.fotos?.length ?? 0) > 1">
+              {{ carrosselIndex + 1 }} / {{ quadraDetalhe!.fotos!.length }}
+            </div>
+          </div>
+          <div class="carrossel-dots" *ngIf="(quadraDetalhe?.fotos?.length ?? 0) > 1">
+            <button class="carrossel-dot" *ngFor="let fotoUrl of quadraDetalhe!.fotos; let i = index"
+              [class.carrossel-dot--ativo]="i === carrosselIndex" (click)="irParaSlide(i)"></button>
+          </div>
+        </div>
+        <div class="carrossel-vazio" *ngIf="(quadraDetalhe?.fotos?.length ?? 0) === 0">
+          <i class="bi bi-image"></i><span>Sem fotos cadastradas</span>
+        </div>
+        <div class="detalhe-info">
+          <div class="detalhe-row">
+            <span class="detalhe-label">Tipo</span>
+            <span class="qcard-tipo" [class.tipo-coberta]="quadraDetalhe?.tipoCobertura === 'COBERTA'"
+              [class.tipo-descoberta]="quadraDetalhe?.tipoCobertura === 'DESCOBERTA'">
+              {{ quadraDetalhe?.tipoCobertura === 'COBERTA' ? 'Coberta' : 'Descoberta' }}
+            </span>
+          </div>
+          <div class="detalhe-row">
+            <span class="detalhe-label">Valor/hora</span>
+            <span class="detalhe-valor">{{ formatarValor(quadraDetalhe?.valorHora ?? 0) }}</span>
+          </div>
+        </div>
+        <div class="detalhe-acoes">
+          <button class="btn-primary btn-sm" (click)="fecharDetalhe(); abrirReservas(quadraDetalhe!)">
+            <i class="bi bi-calendar3"></i> Ver reservas
+          </button>
+          <button class="btn-secondary btn-sm" (click)="fecharDetalhe(); abrirModalEdicao(quadraDetalhe!)">
+            <i class="bi bi-pencil"></i> Editar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="modalQuadraAberto" (click)="fecharModalQuadra()">
+    <div class="modal-box modal-quadra-edit" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ modoEdicao ? 'Editar quadra' : 'Nova quadra' }}</h3>
+        <button class="modal-close" (click)="fecharModalQuadra()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modal-body">
+        <!-- Fotos em modo edição -->
+        <div class="edit-fotos-section" *ngIf="modoEdicao && quadraEmEdicao">
+          <div class="edit-fotos-label"><i class="bi bi-images me-1"></i> Fotos da quadra</div>
+          <div class="edit-fotos-galeria">
+            <div class="edit-foto-thumb" *ngFor="let fotoUrl of quadraEmEdicao.fotos">
+              <img [src]="fotoUrlCompleta(fotoUrl)" alt="Foto" />
+              <button class="edit-foto-remover" type="button" [disabled]="removendoFotoId !== null"
+                (click)="removerFotoQuadra(quadraEmEdicao!,fotoUrl)">
+                <span *ngIf="removendoFotoId === null"><i class="bi bi-x-circle-fill"></i></span>
+                <span *ngIf="removendoFotoId !== null"><span class="spinner-border spinner-border-sm"></span></span>
+              </button>
+            </div>
+            <div class="edit-foto-thumb preview-uploading" *ngIf="previewFotoEdicao">
+              <img [src]="previewFotoEdicao" alt="Enviando..." />
+              <div class="preview-overlay"><span class="spinner-border spinner-border-sm"></span></div>
+            </div>
+            <label class="edit-foto-add" for="foto-edicao-input"
+              *ngIf="!previewFotoEdicao && (quadraEmEdicao.fotos?.length ?? 0) < 5">
+              <i class="bi bi-plus-lg"></i>
+              <input id="foto-edicao-input" type="file" accept="image/*" hidden
+                (change)="selecionarFotoEdicao($event)" />
+            </label>
+          </div>
+          <small class="edit-fotos-hint">Até 5 fotos · JPG ou PNG · máx. 5MB cada</small>
+        </div>
+        <!-- Fotos no cadastro -->
+        <div class="edit-fotos-section" *ngIf="!modoEdicao">
+          <div class="edit-fotos-label"><i class="bi bi-images me-1"></i> Fotos <span
+              style="color:#555;font-weight:400;text-transform:none">(opcional)</span></div>
+          <div class="edit-fotos-galeria">
+            <div class="edit-foto-thumb" *ngFor="let preview of previewsCadastro; let i = index">
+              <img [src]="preview" alt="Preview" />
+              <button class="edit-foto-remover" type="button" (click)="removerFotoCadastro(i)"><i
+                  class="bi bi-x-circle-fill"></i></button>
+            </div>
+            <label class="edit-foto-add" for="foto-cadastro-input" *ngIf="previewsCadastro.length < 5">
+              <i class="bi bi-plus-lg"></i>
+              <input id="foto-cadastro-input" type="file" accept="image/*" multiple hidden
+                (change)="adicionarFotoCadastro($event)" />
+            </label>
+          </div>
+          <small class="edit-fotos-hint">Até 5 fotos · JPG ou PNG · máx. 5MB cada</small>
+        </div>
+
+        <form [formGroup]="quadraForm" (ngSubmit)="salvarQuadra()">
+          <div class="field">
+            <label>Nome da quadra <span class="req">*</span></label>
+            <input type="text" formControlName="nome" placeholder="Ex: Quadra 1 — Arena Central" />
+            <small *ngIf="f['nome'].touched && f['nome'].invalid">Nome obrigatório (mín. 2 caracteres).</small>
+          </div>
+          <div class="field">
+            <label>Tipo de cobertura <span class="req">*</span></label>
+            <div class="radio-group">
+              <label class="radio-opt" [class.radio-sel]="f['tipoCobertura'].value === 'COBERTA'">
+                <input type="radio" formControlName="tipoCobertura" value="COBERTA" /><i class="bi bi-house-fill"></i>
+                Coberta
+              </label>
+              <label class="radio-opt" [class.radio-sel]="f['tipoCobertura'].value === 'DESCOBERTA'">
+                <input type="radio" formControlName="tipoCobertura" value="DESCOBERTA" /><i class="bi bi-sun-fill"></i>
+                Descoberta
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <label>Valor por hora (R$) <span class="req">*</span></label>
+            <input type="number" formControlName="valorHora" placeholder="Ex: 80.00" step="0.01" min="0.01" />
+            <small *ngIf="f['valorHora'].touched && f['valorHora'].invalid">Informe um valor válido maior que
+              zero.</small>
+          </div>
+          <div class="modal-footer" style="padding:0;border:none;margin-top:8px">
+            <button type="button" class="btn-secondary" (click)="fecharModalQuadra()">Cancelar</button>
+            <button type="submit" class="btn-primary" [disabled]="salvandoQuadra">
+              <span *ngIf="!salvandoQuadra"><i class="bi bi-check-lg"></i> {{ modoEdicao ? 'Salvar alterações' :
+                'Cadastrar' }}</span>
+              <span *ngIf="salvandoQuadra"><span class="spinner-border spinner-border-sm"></span> Salvando...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="modalReservasAberto" (click)="fecharModalReservas()">
+    <div class="modal-box modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="bi bi-calendar3"></i> Reservas — {{ quadraReservasSelecionada?.nome }}</h3>
+        <button class="modal-close" (click)="fecharModalReservas()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="loading-row" *ngIf="carregandoReservas">
+          <div class="spinner-border spinner-sm"></div> Carregando...
+        </div>
+        <div class="empty-state sm" *ngIf="!carregandoReservas && reservas.length === 0"><i
+            class="bi bi-calendar-x"></i>
+          <p>Nenhuma reserva para esta quadra.</p>
+        </div>
+        <div class="reservas-lista" *ngIf="!carregandoReservas && reservas.length > 0">
+          <div class="reserva-item" *ngFor="let r of reservas">
+            <div class="ri-info">
+              <span class="ri-jogador"><i class="bi bi-person-fill"></i> {{ r.nomeJogador }}</span>
+              <span class="ri-horario"><i class="bi bi-clock"></i> {{ formatarData(r.dataHoraInicio) }} → {{
+                formatarData(r.dataHoraFim) }} <span class="ri-dur">({{ duracaoHoras(r.dataHoraInicio,r.dataHoraFim)
+                  }})</span></span>
+              <span class="ri-valor">{{ formatarValor(r.valorTotal) }}</span>
+            </div>
+            <div class="ri-acoes">
+              <span class="badge-status" [class]="statusClass(r.status)">{{ r.status }}</span>
+              <button class="btn-acao btn-confirmar" *ngIf="r.status === 'PENDENTE'" (click)="confirmarReserva(r)"><i
+                  class="bi bi-check-lg"></i> Confirmar</button>
+              <button class="btn-acao btn-del" *ngIf="r.status !== 'CANCELADA'" (click)="cancelarReserva(r)"><i
+                  class="bi bi-x-lg"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="modalHorariosAberto" (click)="fecharModalHorarios()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="bi bi-clock-history"></i> Horários — {{ arenaHorariosSelecionada?.nome }}</h3>
+        <button class="modal-close" (click)="fecharModalHorarios()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="loading-row" *ngIf="carregandoHorarios">
+          <div class="spinner-border spinner-sm"></div> Carregando...
+        </div>
+        <div class="empty-state sm" *ngIf="!carregandoHorarios && horarios.length === 0">
+          <i class="bi bi-clock"></i>
+          <p>Nenhum horário cadastrado.</p>
+          <small style="color:#555">Configure em <strong style="color:#ff6a00;cursor:pointer"
+              (click)="fecharModalHorarios();irPara('quadras-dono')">Quadras</strong>.</small>
+        </div>
+        <div class="horarios-lista" *ngIf="!carregandoHorarios && horarios.length > 0">
+          <div class="horario-item" *ngFor="let h of horarios">
+            <div class="horario-dia-nome">{{ h.diaSemanaLabel }}</div>
+            <div class="horario-periodo"><i class="bi bi-clock-fill"></i> {{ h.horaAbertura }} – {{ h.horaFechamento }}
+            </div>
+          </div>
+        </div>
+        <div class="horarios-footer" *ngIf="!carregandoHorarios">
+          <button class="btn-secondary" style="font-size:12px" (click)="fecharModalHorarios();irPara('quadras-dono')"><i
+              class="bi bi-pencil"></i> Editar horários</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="modalArenaEdicaoAberto" (click)="fecharModalEdicaoArena()">
+    <div class="modal-box modal-arena-edit" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="bi bi-building"></i> Editar Arena</h3>
+        <button class="modal-close" (click)="fecharModalEdicaoArena()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modal-body" *ngIf="arenaEmEdicao">
+        <div class="field">
+          <label>Nome da arena <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="arenaEmEdicao.nome" [ngModelOptions]="{standalone:true}"
+            placeholder="Nome da arena" />
+        </div>
+        <div class="field">
+          <label>Descrição <span class="req">*</span></label>
+          <textarea class="arena-textarea" [(ngModel)]="arenaEmEdicao.descricao" [ngModelOptions]="{standalone:true}"
+            placeholder="Descrição da arena" rows="3"></textarea>
+        </div>
+        <div class="arena-edit-secao"><i class="bi bi-geo-alt-fill"></i> Endereço</div>
+        <div class="arena-edit-grid">
+          <div class="field arena-edit-cep">
+            <label>CEP</label>
+            <input type="text" [(ngModel)]="arenaEmEdicao.endereco.cep" [ngModelOptions]="{standalone:true}"
+              placeholder="00000-000" />
+          </div>
+          <div class="field arena-edit-logradouro">
+            <label>Logradouro <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="arenaEmEdicao.endereco.logradouro" [ngModelOptions]="{standalone:true}"
+              placeholder="Rua, Avenida..." />
+          </div>
+          <div class="field arena-edit-numero">
+            <label>Número <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="arenaEmEdicao.endereco.numero" [ngModelOptions]="{standalone:true}"
+              placeholder="123" />
+          </div>
+          <div class="field arena-edit-bairro">
+            <label>Bairro</label>
+            <input type="text" [(ngModel)]="arenaEmEdicao.endereco.bairro" [ngModelOptions]="{standalone:true}"
+              placeholder="Bairro" />
+          </div>
+          <div class="field arena-edit-cidade">
+            <label>Cidade <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="arenaEmEdicao.endereco.cidade" [ngModelOptions]="{standalone:true}"
+              placeholder="Cidade" />
+          </div>
+          <div class="field arena-edit-estado">
+            <label>UF <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="arenaEmEdicao.endereco.estado" [ngModelOptions]="{standalone:true}"
+              placeholder="PR" maxlength="2" style="text-transform:uppercase" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="fecharModalEdicaoArena()">Cancelar</button>
+        <button class="btn-primary" (click)="salvarArena()" [disabled]="salvandoArena">
+          <span *ngIf="!salvandoArena"><i class="bi bi-check-lg"></i> Salvar</span>
+          <span *ngIf="salvandoArena"><span class="spinner-border spinner-border-sm"></span> Salvando...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

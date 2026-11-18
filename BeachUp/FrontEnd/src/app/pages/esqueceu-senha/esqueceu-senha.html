@@ -1,0 +1,99 @@
+<app-menu-lateral></app-menu-lateral>
+
+<div class="forgot-container">
+
+  <section class="hero-section">
+    <img src="assets/fundo/beachup.png" class="hero-image" alt="Beach Tennis" />
+    <div class="diagonal-divider"></div>
+  </section>
+
+  <section class="form-section">
+    <div class="form-wrapper">
+
+      <!-- STEP INDICATOR -->
+      <div class="step-indicator">
+        <div class="step-item" [class.active]="etapa === 'email'" [class.done]="etapa === 'enviado'">
+          <div class="step-circle">
+            <span *ngIf="etapa === 'email'">1</span>
+            <i class="bi bi-check" *ngIf="etapa === 'enviado'"></i>
+          </div>
+          <span class="step-label">E-mail</span>
+        </div>
+        <div class="step-line" [class.filled]="etapa === 'enviado'"></div>
+        <div class="step-item" [class.active]="etapa === 'enviado'">
+          <div class="step-circle">2</div>
+          <span class="step-label">Verifique</span>
+        </div>
+      </div>
+
+      <!-- ── ETAPA 1: DIGITAR E-MAIL ── -->
+      <div *ngIf="etapa === 'email'" class="etapa-content">
+        <div class="etapa-icon">
+          <i class="bi bi-envelope-fill"></i>
+        </div>
+        <h1>Esqueceu a senha?</h1>
+        <p class="subtitle">Informe seu e-mail cadastrado e enviaremos um link para redefinir sua senha.</p>
+
+        <form class="forms" [formGroup]="emailForm" (ngSubmit)="enviarLink()">
+          <div class="field-group">
+            <label class="field-label">E-mail</label>
+            <div class="input-wrap">
+              <i class="bi bi-envelope input-icon"></i>
+              <input type="email" placeholder="seu@email.com" formControlName="email" />
+            </div>
+            <small class="text-danger" *ngIf="ef['email'].touched && ef['email'].invalid">
+              Informe um e-mail válido.
+            </small>
+          </div>
+
+          <button type="submit" class="btn-default" [disabled]="carregando">
+            <span *ngIf="!carregando"><i class="bi bi-send-fill"></i> Enviar link</span>
+            <span *ngIf="carregando"><span class="spinner-border spinner-border-sm"></span> Enviando...</span>
+          </button>
+
+          <p class="login-text">
+            Lembrou a senha?
+            <a class="link-action" (click)="voltarParaLogin()">Voltar ao login</a>
+          </p>
+        </form>
+      </div>
+
+      <!-- ── ETAPA 2: CONFIRMAÇÃO DE ENVIO ── -->
+      <div *ngIf="etapa === 'enviado'" class="etapa-content">
+        <div class="etapa-icon etapa-icon--codigo">
+          <i class="bi bi-envelope-check-fill"></i>
+        </div>
+        <h1>E-mail enviado!</h1>
+        <p class="subtitle">
+          Enviamos um link de redefinição para<br/>
+          <strong class="email-destaque">{{ emailEnviado }}</strong>
+        </p>
+
+        <div class="instrucoes-box">
+          <div class="instrucao-item">
+            <div class="instrucao-num">1</div>
+            <span>Abra sua caixa de entrada (verifique o spam)</span>
+          </div>
+          <div class="instrucao-item">
+            <div class="instrucao-num">2</div>
+            <span>Clique no botão <strong>"Redefinir minha senha"</strong></span>
+          </div>
+          <div class="instrucao-item">
+            <div class="instrucao-num">3</div>
+            <span>Escolha sua nova senha — link válido por <strong>30 min</strong></span>
+          </div>
+        </div>
+
+        <p class="login-text">
+          Não recebeu?
+          <a class="link-action" (click)="reenviar()">Reenviar link</a>
+        </p>
+
+        <button class="btn-outline" (click)="voltarParaLogin()">
+          <i class="bi bi-arrow-left"></i> Voltar ao login
+        </button>
+      </div>
+
+    </div>
+  </section>
+</div>

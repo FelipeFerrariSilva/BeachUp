@@ -1,0 +1,222 @@
+<div class="planos-wrapper">
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  <div class="planos-content">
+
+    <div class="section-header">
+      <h2>Escolha o plano ideal para seu espaço esportivo</h2>
+      <p>Do início da divulgação até a gestão completa de reservas, visibilidade e eventos.</p>
+    </div>
+
+    <div class="plano-atual-bar" *ngIf="assinatura">
+      <span class="plano-atual-label">Seu plano atual:</span>
+      <span class="plano-atual-badge" [ngClass]="badgePlano(assinatura.tipoPlano)">
+        {{ assinatura.nomePlano }}
+      </span>
+      <span class="plano-atual-renova" *ngIf="assinatura.dataFim">
+        <i class="bi bi-clock"></i> Renova em {{ diasRestantes() }} dias
+      </span>
+    </div>
+
+    <div class="alert-mp alert-mp--ok" *ngIf="mpConectado">
+      <div class="alert-mp-left">
+        <i class="bi bi-check-circle-fill"></i>
+        <div>
+          <strong>Mercado Pago conectado</strong>
+          <span>Você já recebe pagamentos de reservas direto na sua conta.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="plans-grid" *ngIf="!carregando">
+
+      <div class="plan-card" [class.plan-card--ativo]="assinatura?.tipoPlano === 'GRATUITO'">
+        <div class="plan-ativo-tag" *ngIf="assinatura?.tipoPlano === 'GRATUITO'">
+          <i class="bi bi-check-lg"></i> Plano atual
+        </div>
+        <div class="plan-icon plan-icon--free"><i class="bi bi-gift"></i></div>
+        <h3>Gratuito</h3>
+        <p class="plan-price">R$ 0<span>/mês</span></p>
+        <p class="plan-desc">Para quem está começando e quer testar a plataforma.</p>
+        <ul>
+          <li><i class="bi bi-check2"></i> Até 2 quadras cadastradas</li>
+          <li><i class="bi bi-check2"></i> Taxa de 3% por reserva</li>
+          <li><i class="bi bi-check2"></i> Acesso à plataforma</li>
+          <li><i class="bi bi-x text-muted"></i> <span class="text-muted">Quadras ilimitadas</span></li>
+          <li><i class="bi bi-x text-muted"></i> <span class="text-muted">Criação de campeonatos</span></li>
+        </ul>
+        <button class="plan-btn plan-btn secondary" disabled *ngIf="assinatura?.tipoPlano === 'GRATUITO'">
+          <i class="bi bi-check-lg"></i> Plano atual
+        </button>
+        <button class="plan-btn secondary" disabled *ngIf="assinatura?.tipoPlano !== 'GRATUITO'">
+          Plano incluído
+        </button>
+      </div>
+
+      <div class="plan-card plan-card--basico" [class.plan-card--ativo]="assinatura?.tipoPlano === 'BASICO'">
+        <div class="plan-ativo-tag" *ngIf="assinatura?.tipoPlano === 'BASICO'">
+          <i class="bi bi-check-lg"></i> Plano atual
+        </div>
+        <div class="plan-icon plan-icon--basico"><i class="bi bi-rocket-takeoff"></i></div>
+        <h3>Básico</h3>
+        <p class="plan-price plan-price--basico">R$ 199,90<span>/mês</span></p>
+        <p class="plan-desc">Para arenas que querem crescer sem limites de quadras.</p>
+        <ul>
+          <li><i class="bi bi-check2"></i> Quadras ilimitadas</li>
+          <li><i class="bi bi-check2"></i> Taxa de 1% por reserva</li>
+          <li><i class="bi bi-check2"></i> Acesso completo à plataforma</li>
+          <li><i class="bi bi-check2"></i> Maior visibilidade no app</li>
+          <li><i class="bi bi-x text-muted"></i> <span class="text-muted">Criação de campeonatos</span></li>
+        </ul>
+        <button class="plan-btn plan-btn--atual" disabled *ngIf="assinatura?.tipoPlano === 'BASICO'">
+          <i class="bi bi-check-lg"></i> Plano atual
+        </button>
+        <button class="plan-btn plan-btn--basico"
+          *ngIf="assinatura?.tipoPlano !== 'BASICO'"
+          (click)="assinarPlano('BASICO')"
+          [disabled]="processando === 'BASICO'">
+          <span *ngIf="processando !== 'BASICO'"><i class="bi bi-arrow-up-circle"></i> Assinar Básico</span>
+          <span *ngIf="processando === 'BASICO'"><span class="spinner-border spinner-border-sm"></span> Aguarde...</span>
+        </button>
+      </div>
+
+      <div class="plan-card plan-card--gold" [class.plan-card--ativo]="assinatura?.tipoPlano === 'GOLD'">
+        <div class="plan-tag">Mais completo</div>
+        <div class="plan-ativo-tag plan-ativo-tag--gold" *ngIf="assinatura?.tipoPlano === 'GOLD'">
+          <i class="bi bi-check-lg"></i> Plano atual
+        </div>
+        <div class="plan-icon plan-icon--gold"><i class="bi bi-trophy-fill"></i></div>
+        <h3>Gold</h3>
+        <p class="plan-price plan-price--gold">R$ 399,90<span>/mês</span></p>
+        <p class="plan-desc">Para arenas profissionais que organizam campeonatos.</p>
+        <ul>
+          <li><i class="bi bi-check2"></i> Quadras ilimitadas</li>
+          <li><i class="bi bi-check2"></i> Sem taxa por reserva</li>
+          <li><i class="bi bi-check2"></i> Criação de campeonatos</li>
+          <li><i class="bi bi-check2"></i> Destaque máximo no app</li>
+          <li><i class="bi bi-check2"></i> Suporte prioritário</li>
+        </ul>
+        <button class="plan-btn plan-btn--atual" disabled *ngIf="assinatura?.tipoPlano === 'GOLD'">
+          <i class="bi bi-check-lg"></i> Plano atual
+        </button>
+        <button class="plan-btn plan-btn--gold"
+          *ngIf="assinatura?.tipoPlano !== 'GOLD'"
+          (click)="assinarPlano('GOLD')"
+          [disabled]="processando === 'GOLD'">
+          <span *ngIf="processando !== 'GOLD'"><i class="bi bi-star-fill"></i> Ser Gold</span>
+          <span *ngIf="processando === 'GOLD'"><span class="spinner-border spinner-border-sm"></span> Aguarde...</span>
+        </button>
+      </div>
+
+    </div>
+
+    <div class="plans-grid" *ngIf="carregando">
+      <div class="plan-card sk-card" *ngFor="let i of [1,2,3]">
+        <div class="sk sk-icon"></div>
+        <div class="sk sk-title"></div>
+        <div class="sk sk-price"></div>
+        <div class="sk sk-line" *ngFor="let j of [1,2,3,4,5]"></div>
+        <div class="sk sk-btn"></div>
+      </div>
+    </div>
+
+    <div class="comparativo" *ngIf="!carregando">
+      <div class="section-header" style="margin-bottom: 24px; margin-top: 0">
+        <span class="section-badge">Comparativo</span>
+        <h2>Veja o que cada plano oferece</h2>
+      </div>
+      <div class="comparativo-table-wrap">
+        <table class="comparativo-table">
+          <thead>
+            <tr>
+              <th>Recurso</th>
+              <th>Gratuito</th>
+              <th class="col-basico">Básico</th>
+              <th class="col-gold">Gold</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Quadras cadastradas</td>
+              <td>Até 2</td>
+              <td>Ilimitadas</td>
+              <td>Ilimitadas</td>
+            </tr>
+            <tr>
+              <td>Taxa por reserva</td>
+              <td class="taxa-alta">3%</td>
+              <td class="taxa-media">1%</td>
+              <td class="taxa-zero">0% <i class="bi bi-stars"></i></td>
+            </tr>
+            <tr>
+              <td>Criação de campeonatos</td>
+              <td><i class="bi bi-x-lg icon-no"></i></td>
+              <td><i class="bi bi-x-lg icon-no"></i></td>
+              <td><i class="bi bi-check-lg icon-ok"></i></td>
+            </tr>
+            <tr>
+              <td>Painel de arenas</td>
+              <td><i class="bi bi-check-lg icon-ok"></i></td>
+              <td><i class="bi bi-check-lg icon-ok"></i></td>
+              <td><i class="bi bi-check-lg icon-ok"></i></td>
+            </tr>
+            <tr>
+              <td>Gestão de reservas</td>
+              <td><i class="bi bi-check-lg icon-ok"></i></td>
+              <td><i class="bi bi-check-lg icon-ok"></i></td>
+              <td><i class="bi bi-check-lg icon-ok"></i></td>
+            </tr>
+            <tr>
+              <td>Validade</td>
+              <td>Sem expiração</td>
+              <td>30 dias</td>
+              <td>30 dias</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="assinatura-detalhe" *ngIf="assinatura && assinatura.tipoPlano !== 'GRATUITO'">
+      <div class="section-header" style="margin-bottom: 24px; margin-top: 0">
+        <span class="section-badge">Sua assinatura</span>
+        <h2>Detalhes do plano ativo</h2>
+      </div>
+      <div class="detalhe-grid">
+        <div class="detalhe-item">
+          <span class="detalhe-label">Plano</span>
+          <span class="detalhe-valor">{{ assinatura.nomePlano }}</span>
+        </div>
+        <div class="detalhe-item">
+          <span class="detalhe-label">Status</span>
+          <span class="badge-status badge-ativa" *ngIf="assinatura.status === 'ATIVA'">
+            <i class="bi bi-circle-fill"></i> Ativa
+          </span>
+          <span class="badge-status badge-expirada" *ngIf="assinatura.status !== 'ATIVA'">
+            <i class="bi bi-circle-fill"></i> Expirada
+          </span>
+        </div>
+        <div class="detalhe-item">
+          <span class="detalhe-label">Início</span>
+          <span class="detalhe-valor">{{ formatarData(assinatura.dataInicio) }}</span>
+        </div>
+        <div class="detalhe-item" *ngIf="assinatura.dataFim">
+          <span class="detalhe-label">Vencimento</span>
+          <span class="detalhe-valor">{{ formatarData(assinatura.dataFim) }}</span>
+        </div>
+        <div class="detalhe-item">
+          <span class="detalhe-label">Taxa por reserva</span>
+          <span class="detalhe-valor taxa-zero" *ngIf="assinatura.taxaReserva === 0">0% <i class="bi bi-stars"></i></span>
+          <span class="detalhe-valor" *ngIf="assinatura.taxaReserva > 0">{{ (assinatura.taxaReserva * 100).toFixed(0) }}%</span>
+        </div>
+        <div class="detalhe-item">
+          <span class="detalhe-label">Campeonatos</span>
+          <span class="detalhe-valor" *ngIf="assinatura.podeCriarCampeonato"><i class="bi bi-check-lg icon-ok"></i> Habilitado</span>
+          <span class="detalhe-valor" *ngIf="!assinatura.podeCriarCampeonato"><i class="bi bi-x-lg icon-no"></i> Não disponível</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

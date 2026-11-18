@@ -1,0 +1,411 @@
+<div class="rv-wrapper">
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  @if (isJogador) {
+
+  <div class="hero-header">
+
+    <div class="search-bar-row">
+      <div class="search-input-wrap">
+        <i class="bi bi-search search-icon"></i>
+        <input class="search-input" type="text" placeholder="Buscar arena ou bairro..." [(ngModel)]="termoBusca"
+          (input)="filtrarArenas()" />
+        <button class="search-clear" *ngIf="termoBusca" (click)="limparBusca()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <button class="btn-geo" (click)="buscarArenasPerto()" [disabled]="buscandoArenasPerto">
+        <span *ngIf="!buscandoArenasPerto">
+          <i class="bi bi-cursor-fill"></i> ARENAS PRÓXIMAS
+        </span>
+        <span *ngIf="buscandoArenasPerto">
+          <span class="spinner-border spinner-border-sm"></span> Buscando...
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div class="rv-body">
+
+    <div class="proximas-wrap" *ngIf="arenasProximas.length > 0">
+      <div class="proximas-header">
+        <i class="bi bi-geo-alt-fill"></i>
+        <span>{{ arenasProximas.length }} arena(s) encontrada(s) perto de você</span>
+        <button class="btn-fechar-geo" (click)="arenasProximas = []">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="arenas-grid">
+        <div class="arena-card" *ngFor="let a of arenasProximas; trackBy: trackById" (click)="abrirModalArena(a)">
+          <ng-container *ngTemplateOutlet="cardArena; context: { $implicit: a }"></ng-container>
+        </div>
+      </div>
+    </div>
+
+    @if (carregandoArenas) {
+    <div class="rv-loading">
+      <div class="spinner"></div>
+      <span>Carregando arenas...</span>
+    </div>
+    } @else if (arenasFiltradas.length === 0 && termoBusca) {
+    <div class="rv-vazio">
+      <i class="bi bi-search"></i>
+      <span>Nenhuma arena encontrada para "{{ termoBusca }}".</span>
+      <button class="btn-limpar-busca" (click)="limparBusca()">Limpar busca</button>
+    </div>
+    } @else if (arenas.length === 0) {
+    <div class="rv-vazio">
+      <i class="bi bi-geo-alt"></i>
+      <span>Nenhuma arena cadastrada no momento.</span>
+    </div>
+    } @else {
+    <div class="arenas-grid">
+      @for (a of arenasFiltradas; track a.id) {
+      <div class="arena-card" (click)="abrirModalArena(a)">
+        <ng-container *ngTemplateOutlet="cardArena; context: { $implicit: a }"></ng-container>
+      </div>
+      }
+    </div>
+    }
+  </div>
+
+  <ng-template #cardArena let-a>
+    <div class="arena-card-foto" *ngIf="getFotoUrl(a)">
+      <img [src]="getFotoUrl(a)" [alt]="a.nome" />
+    </div>
+
+    <div class="arena-card-header">
+      <div>
+        <h3 class="arena-card-nome">{{ a.nome }}</h3>
+        <p class="arena-card-loc" *ngIf="a.endereco">
+          <i class="bi bi-geo-alt"></i>
+          {{ a.endereco.bairro || a.endereco.cidade }}
+        </p>
+      </div>
+
+      <span class="arena-dist-badge" *ngIf="a.distanciaKm !== undefined">
+        <i class="bi bi-signpost-split-fill"></i> {{ a.distanciaKm | number:'1.1-1' }} km
+      </span>
+    </div>
+
+    <p class="arena-logradouro" *ngIf="a.endereco">
+      <i class="bi bi-pin-map"></i> {{ a.endereco.logradouro }}, {{ a.endereco.cidade }}/{{ a.endereco.estado }}
+    </p>
+
+    <button class="btn-ver-quadras">
+      <i class="bi bi-grid-fill"></i> Ver quadras e reservar
+    </button>
+  </ng-template>
+  }
+
+  @if (isEmpresa) {
+  <div class="rv-body">
+
+    <div class="dono-header-info">
+      <i class="bi bi-shield-check"></i>
+      <span>Painel do dono — gerencie as reservas das suas quadras</span>
+    </div>
+
+    <section class="rv-section">
+      <div class="rv-section-header">
+        <div>
+          <h2 class="rv-section-title">Suas quadras</h2>
+          <p class="rv-section-sub">Selecione uma quadra para ver as reservas</p>
+        </div>
+        <button class="btn-icon" (click)="carregarQuadrasDono()" title="Atualizar">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+      </div>
+
+      @if (carregandoQuadrasDono) {
+      <div class="rv-loading">
+        <div class="spinner"></div><span>Carregando suas quadras...</span>
+      </div>
+      } @else if (quadrasDono.length === 0) {
+      <div class="rv-vazio">
+        <i class="bi bi-geo-alt"></i>
+        <span>Nenhuma quadra cadastrada. Vá ao Dashboard para criar uma.</span>
+      </div>
+      } @else {
+      <div class="quadras-selector">
+        @for (q of quadrasDono; track q.id) {
+        <button class="quadra-selector-btn" [class.ativa]="quadraSelecionadaDono?.id === q.id"
+          (click)="selecionarQuadraDono(q)">
+          <i class="bi bi-geo-alt-fill"></i>
+          <span>{{ q.nome }}</span>
+          <span class="selector-badge" [class.coberta]="q.tipoCobertura === 'COBERTA'">{{
+            labelCobertura(q.tipoCobertura) }}</span>
+        </button>
+        }
+      </div>
+      }
+    </section>
+
+    @if (quadraSelecionadaDono) {
+    <section class="rv-section">
+      <div class="rv-section-header">
+        <div>
+          <h2 class="rv-section-title">Reservas — {{ quadraSelecionadaDono.nome }}</h2>
+          <p class="rv-section-sub">Confirme ou cancele as reservas recebidas</p>
+        </div>
+        <button class="btn-icon" (click)="carregarReservasDaQuadra(quadraSelecionadaDono.id)" title="Atualizar">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+      </div>
+
+      @if (carregandoReservasDono) {
+      <div class="rv-loading">
+        <div class="spinner"></div><span>Carregando reservas...</span>
+      </div>
+      } @else if (reservasDaQuadra.length === 0) {
+      <div class="rv-vazio">
+        <i class="bi bi-calendar-x"></i>
+        <span>Nenhuma reserva para esta quadra.</span>
+      </div>
+      } @else {
+      @if (reservasPendentes > 0) {
+      <div class="pendentes-aviso">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        {{ reservasPendentes }} reserva(s) aguardando sua confirmação
+      </div>
+      }
+      <div class="reservas-table-wrap">
+        <table class="reservas-table">
+          <thead>
+            <tr>
+              <th>Jogador</th>
+              <th>Início</th>
+              <th>Fim</th>
+              <th>Valor</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of reservasDaQuadra; track r.id) {
+            <tr [class.linha-pendente]="r.status === 'PENDENTE'">
+              <td>
+                <div class="jogador-cell"><i class="bi bi-person-fill"></i><span>{{ r.nomeJogador }}</span></div>
+              </td>
+              <td class="data-cell">{{ formatarData(r.dataHoraInicio) }}</td>
+              <td class="data-cell">{{ formatarData(r.dataHoraFim) }}</td>
+              <td class="valor-cell">{{ formatarValor(r.valorTotal) }}</td>
+              <td>
+                <span class="badge-status" [class]="'status-' + r.status.toLowerCase()">
+                  {{ r.status === 'PENDENTE' ? 'Pendente' : r.status === 'CONFIRMADA' ? 'Confirmada' : 'Cancelada' }}
+                </span>
+              </td>
+              <td class="acoes-cell acoes-dono">
+                @if (r.status === 'PENDENTE') {
+                <button class="btn-confirmar" (click)="confirmarReservaDono(r)" title="Confirmar"><i
+                    class="bi bi-check-circle"></i></button>
+                }
+                @if (podeCancelar(r)) {
+                <button class="btn-cancelar" (click)="cancelarReservaDono(r)" title="Cancelar"><i
+                    class="bi bi-x-circle"></i></button>
+                }
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+    </section>
+    }
+
+  </div>
+  }
+</div>
+
+@if (isJogador && modalArenaAberto) {
+<div class="modal-overlay" (click)="fecharModalArena()">
+  <div class="modal-box modal-box-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h3 class="modal-title">Quadras</h3>
+        @if (arenaSelecionada) { <p class="modal-sub">{{ arenaSelecionada.nome }}</p> }
+      </div>
+      <button class="modal-close" (click)="fecharModalArena()"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <div class="horarios-section">
+      <div class="horarios-title">
+        <i class="bi bi-clock-history"></i>
+        Horários de funcionamento
+      </div>
+      @if (carregandoHorarios) {
+      <span class="horarios-loading"><span class="spinner-border spinner-border-sm"></span> Carregando...</span>
+      } @else if (horariosArena.length === 0) {
+      <p class="horarios-vazio">Horários não informados pelo dono da arena.</p>
+      } @else {
+      <div class="horarios-grid">
+        @for (h of horariosArena; track h.id) {
+        <div class="horario-chip">
+          <span class="horario-dia">{{ h.diaSemanaLabel }}</span>
+          <span class="horario-tempo">{{ h.horaAbertura.slice(0, 5) }} – {{ h.horaFechamento.slice(0, 5) }}</span>
+        </div>
+        }
+      </div>
+      }
+    </div>
+
+    @if (carregandoQuadrasDaArena) {
+    <div class="rv-loading">
+      <div class="spinner"></div><span>Carregando quadras...</span>
+    </div>
+    } @else if (quadrasDaArena.length === 0) {
+    <div class="rv-vazio"><i class="bi bi-grid-3x3-gap"></i><span>Nenhuma quadra cadastrada nesta arena.</span></div>
+    } @else {
+    <div class="quadras-grid quadras-grid-modal">
+      @for (q of quadrasDaArena; track q.id) {
+      <div class="quadra-card" (click)="abrirModal(q)">
+        <div class="quadra-card-foto" *ngIf="getFotoQuadraUrl(q)">
+          <img [src]="getFotoQuadraUrl(q)" [alt]="q.nome" />
+        </div>
+        <div class="quadra-card-top">
+          <div class="quadra-icone" *ngIf="!getFotoQuadraUrl(q)"><i class="bi bi-geo-alt-fill"></i></div>
+          <span class="badge-cobertura" [class.coberta]="q.tipoCobertura === 'COBERTA'">
+            <i class="bi" [class.bi-house-fill]="q.tipoCobertura === 'COBERTA'"
+              [class.bi-sun]="q.tipoCobertura === 'DESCOBERTA'"></i>
+            {{ labelCobertura(q.tipoCobertura) }}
+          </span>
+        </div>
+        <div class="quadra-card-info">
+          <h3 class="quadra-nome">{{ q.nome }}</h3>
+          <p class="quadra-valor">{{ formatarValor(q.valorHora) }}<span class="por-hora">/hora</span></p>
+        </div>
+        <button class="btn-reservar"><i class="bi bi-calendar-plus"></i> Reservar</button>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>
+}
+
+<!-- ===== MODAL RESERVA ===== -->
+@if (isJogador && modalAberto) {
+<div class="modal-overlay" (click)="fecharModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h3 class="modal-title">Reservar quadra</h3>
+        @if (quadraSelecionada) { <p class="modal-sub">{{ quadraSelecionada.nome }}</p> }
+      </div>
+      <button class="modal-close" (click)="fecharModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    @if (quadraSelecionada && fotosCarrosselUrls.length > 0) {
+    <div class="foto-carrossel">
+      <div class="foto-carrossel-viewport">
+        <img [src]="fotosCarrosselUrls[fotoCarrosselIndex]"
+          [alt]="quadraSelecionada.nome + ' foto ' + (fotoCarrosselIndex + 1)" />
+
+        @if (fotosCarrosselUrls.length > 1) {
+        <button type="button" class="carrossel-seta carrossel-seta-esq" (click)="fotoAnterior()"
+          aria-label="Foto anterior">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <button type="button" class="carrossel-seta carrossel-seta-dir" (click)="proximaFoto()"
+          aria-label="Próxima foto">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+        <span class="carrossel-contador">{{ fotoCarrosselIndex + 1 }}/{{ fotosCarrosselUrls.length }}</span>
+        }
+      </div>
+
+      @if (fotosCarrosselUrls.length > 1) {
+      <div class="carrossel-dots">
+        @for (url of fotosCarrosselUrls; track $index) {
+        <button type="button" class="carrossel-dot" [class.ativo]="fotoCarrosselIndex === $index"
+          (click)="irParaFoto($index)" [attr.aria-label]="'Ir para foto ' + ($index + 1)"></button>
+        }
+      </div>
+      }
+    </div>
+    }
+
+    @if (quadraSelecionada) {
+    <div class="modal-info-row">
+      <div class="info-chip">
+        <i class="bi" [class.bi-house-fill]="quadraSelecionada.tipoCobertura === 'COBERTA'"
+          [class.bi-sun]="quadraSelecionada.tipoCobertura === 'DESCOBERTA'"></i>
+        {{ labelCobertura(quadraSelecionada.tipoCobertura) }}
+      </div>
+      <div class="info-chip destaque">
+        <i class="bi bi-clock"></i> {{ formatarValor(quadraSelecionada.valorHora) }}/hora
+      </div>
+    </div>
+    }
+
+    <form [formGroup]="reservaForm" (ngSubmit)="reservar()" class="modal-form">
+      <div class="form-group" [class.invalid]="campoInvalido('dataReserva')">
+        <label>Data</label>
+        <input type="date" formControlName="dataReserva" [min]="minData" />
+        @if (campoInvalido('dataReserva')) { <span class="field-error">Selecione a data da reserva.</span> }
+      </div>
+
+      <!-- Aviso de horário da arena no dia selecionado -->
+      @if (reservaForm.get('dataReserva')?.value) {
+      @if (horarioDoDiaSelecionado) {
+      <div class="horario-aviso horario-aviso--ok">
+        <i class="bi bi-clock-fill"></i>
+        Arena aberta das <strong>{{ horarioDoDiaSelecionado.horaAbertura }}</strong>
+        às <strong>{{ horarioDoDiaSelecionado.horaFechamento }}</strong> neste dia.
+      </div>
+      } @else if (horariosArena.length > 0) {
+      <div class="horario-aviso horario-aviso--fechado">
+        <i class="bi bi-slash-circle-fill"></i>
+        Arena fechada neste dia da semana. Escolha outra data.
+      </div>
+      }
+      }
+
+      <div class="form-row">
+        <div class="form-group" [class.invalid]="campoInvalido('horaInicio')">
+          <label>Hora de início</label>
+          <select formControlName="horaInicio">
+            <option value="" disabled selected>Selecione</option>
+            @for (h of horasDisponiveis; track h) {
+            <option [value]="h">{{ h }}h</option>
+            }
+          </select>
+          @if (campoInvalido('horaInicio')) { <span class="field-error">Selecione a hora de início.</span> }
+        </div>
+        <div class="form-group" [class.invalid]="campoInvalido('horaFim')">
+          <label>Hora de fim</label>
+          <select formControlName="horaFim">
+            <option value="" disabled selected>Selecione</option>
+            @for (h of horasDispFim; track h) {
+            <option [value]="h">{{ h }}h</option>
+            }
+          </select>
+          @if (campoInvalido('horaFim')) { <span class="field-error">Selecione a hora de fim.</span> }
+          @if (reservaForm.errors?.['periodoInvalido'] && reservaForm.get('horaFim')?.touched) {
+          <span class="field-error">O fim deve ser depois do início.</span>
+          }
+        </div>
+      </div>
+
+      @if (duracaoHoras > 0) {
+      <div class="valor-preview">
+        <div class="valor-preview-row"><span>Duração</span><span>{{ duracaoHoras | number: '1.0-1' }}h</span></div>
+        <div class="valor-preview-row total"><span>Total estimado</span><span class="total-valor">{{
+            formatarValor(valorEstimado) }}</span></div>
+      </div>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="fecharModal()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="salvando">
+          @if (!salvando) { <span><i class="bi bi-calendar-check"></i> Confirmar reserva</span> }
+          @else { <span><i class="bi bi-hourglass-split"></i> Aguarde...</span> }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}

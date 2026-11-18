@@ -1,0 +1,535 @@
+/* ==============================
+   Meus Times — BeachUp
+   ============================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.times-wrapper {
+  min-height: 100vh;
+  background: #0d0d0d;
+  color: #fff;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  padding: 24px 24px 48px;
+}
+
+/* ---- Header ---- */
+.times-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.times-titulo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.times-subtitulo {
+  display: block;
+  font-size: 0.83rem;
+  color: #666;
+  margin-top: 2px;
+}
+
+/* ---- Layout 2 colunas ---- */
+.times-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .times-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Card criar time ---- */
+.criar-card {
+  background: #161616;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  overflow: hidden;
+  position: sticky;
+  top: 24px;
+}
+
+.criar-card-header {
+  background: #ff6a00;
+  padding: 14px 18px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.2px;
+}
+
+.criar-form {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.campo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.campo-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.obrig {
+  color: #ff6a00;
+}
+
+.opcional {
+  color: #555;
+  font-weight: 400;
+  text-transform: none;
+}
+
+.campo-input {
+  background: #0d0d0d;
+  border: 1px solid #2e2e2e;
+  border-radius: 10px;
+  color: #fff;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.campo-input:focus {
+  border-color: #ff6a00;
+}
+
+.campo-input::placeholder {
+  color: #444;
+}
+
+.campo-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.campo-erro {
+  font-size: 0.76rem;
+  color: #ff4d4d;
+}
+
+.btn-criar {
+  background: #ff6a00;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 11px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-criar:hover:not(:disabled) {
+  background: #e55e00;
+  transform: translateY(-1px);
+}
+
+.btn-criar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ---- Main: estados ---- */
+.estado-loading,
+.estado-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #555;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.estado-loading {
+  flex-direction: row;
+  font-size: 0.9rem;
+}
+
+.estado-vazio i {
+  font-size: 3rem;
+  opacity: 0.25;
+}
+
+.estado-vazio p {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #777;
+  margin: 0;
+}
+
+.estado-vazio span {
+  font-size: 0.83rem;
+  color: #555;
+}
+
+/* ---- Grid de times ---- */
+.times-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.time-card {
+  background: #161616;
+  border: 1px solid #222;
+  border-radius: 14px;
+  padding: 18px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s, transform 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.time-card:hover {
+  border-color: #ff6a00;
+  transform: translateY(-2px);
+}
+
+/* Badges */
+.badge-dono,
+.badge-membro {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 3px 10px;
+  width: fit-content;
+  letter-spacing: 0.3px;
+}
+
+.badge-dono {
+  background: rgba(255, 106, 0, 0.15);
+  color: #ff6a00;
+  border: 1px solid rgba(255, 106, 0, 0.3);
+}
+
+.badge-membro {
+  background: rgba(255, 255, 255, 0.06);
+  color: #888;
+  border: 1px solid #2a2a2a;
+}
+
+.time-card-nome {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.time-card-desc {
+  font-size: 0.82rem;
+  color: #777;
+  line-height: 1.5;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.time-card-desc.sem-desc {
+  font-style: italic;
+}
+
+.time-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid #1e1e1e;
+  margin-top: auto;
+}
+
+.time-membros {
+  font-size: 0.8rem;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pendentes-badge {
+  background: rgba(255, 200, 0, 0.12);
+  color: #ffc107;
+  border-radius: 12px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.time-card-footer>i {
+  color: #444;
+  font-size: 0.85rem;
+}
+
+/* ---- Modal ---- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+}
+
+.modal-box {
+  background: #161616;
+  border: 1px solid #2a2a2a;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid #222;
+}
+
+.modal-titulo {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.modal-desc {
+  font-size: 0.83rem;
+  color: #777;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.modal-fechar {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 2px;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.modal-fechar:hover {
+  color: #fff;
+}
+
+/* Convite */
+.convite-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid #1e1e1e;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.convite-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.convite-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0d0d0d;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.convite-url {
+  font-size: 0.78rem;
+  color: #888;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-copiar {
+  background: none;
+  border: none;
+  color: #ff6a00;
+  cursor: pointer;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.btn-copiar:hover {
+  transform: scale(1.15);
+}
+
+.convite-vazio {
+  font-size: 0.82rem;
+  color: #555;
+  font-style: italic;
+}
+
+.btn-regerar {
+  background: transparent;
+  border: 1px solid #ff6a00;
+  color: #ff6a00;
+  border-radius: 9px;
+  padding: 7px 14px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-regerar:hover:not(:disabled) {
+  background: #ff6a00;
+  color: #fff;
+}
+
+.btn-regerar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Membros */
+.membros-section {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.membros-section.pendentes {
+  padding-top: 0;
+}
+
+.membros-titulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.membro-vazio {
+  font-size: 0.82rem;
+  color: #444;
+  font-style: italic;
+}
+
+.membro-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: #111;
+  border-radius: 9px;
+  border: 1px solid #1e1e1e;
+}
+
+.membro-item.pendente {
+  opacity: 0.65;
+}
+
+.membro-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #ff6a00;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.membro-avatar.pendente-avatar {
+  background: #333;
+  color: #888;
+}
+
+.membro-nome {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #ddd;
+  flex: 1;
+}
+
+.membro-dono-tag {
+  color: #ff6a00;
+  font-size: 0.8rem;
+}
+
+.membro-status-pendente {
+  font-size: 0.72rem;
+  color: #ffc107;
+  background: rgba(255, 193, 7, 0.1);
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-weight: 600;
+}
+
+/* Utilitários */
+.me-1 {
+  margin-right: 0.25rem;
+}
+
+.me-2 {
+  margin-right: 0.4rem;
+}

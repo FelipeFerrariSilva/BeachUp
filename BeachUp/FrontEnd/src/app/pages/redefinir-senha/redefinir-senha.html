@@ -1,0 +1,111 @@
+<app-menu-lateral></app-menu-lateral>
+
+<div class="forgot-container">
+
+  <section class="hero-section">
+    <img src="assets/fundo/beachup.png" class="hero-image" alt="Beach Tennis" />
+    <div class="diagonal-divider"></div>
+  </section>
+
+  <section class="form-section">
+    <div class="form-wrapper">
+
+      <!-- STEP INDICATOR -->
+      <div class="step-indicator">
+        <div class="step-item done">
+          <div class="step-circle"><i class="bi bi-check"></i></div>
+          <span class="step-label">E-mail</span>
+        </div>
+        <div class="step-line filled"></div>
+        <div class="step-item" [class.active]="!sucesso && !tokenInvalido" [class.done]="sucesso">
+          <div class="step-circle">
+            <span *ngIf="!sucesso">2</span>
+            <i class="bi bi-check" *ngIf="sucesso"></i>
+          </div>
+          <span class="step-label">Nova senha</span>
+        </div>
+      </div>
+
+      <!-- ── TOKEN INVÁLIDO ── -->
+      <div *ngIf="tokenInvalido" class="etapa-content">
+        <div class="etapa-icon etapa-icon--erro">
+          <i class="bi bi-x-circle-fill"></i>
+        </div>
+        <h1>Link inválido</h1>
+        <p class="subtitle">Este link expirou ou já foi utilizado. Links são válidos por 30 minutos.</p>
+
+        <button class="btn-default" (click)="navigation.irPara('esqueci-senha')">
+          <i class="bi bi-arrow-repeat"></i> Solicitar novo link
+        </button>
+        <p class="login-text">
+          <a class="link-action" (click)="navigation.irPara('login')">Voltar ao login</a>
+        </p>
+      </div>
+
+      <div *ngIf="sucesso" class="etapa-content">
+        <div class="etapa-icon etapa-icon--senha">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h1>Senha redefinida!</h1>
+        <p class="subtitle">Sua senha foi alterada com sucesso. Faça login com a nova senha.</p>
+
+        <button class="btn-default" (click)="navigation.irPara('login')">
+          <i class="bi bi-box-arrow-in-right"></i> Ir para o login
+        </button>
+      </div>
+
+      <!-- ── FORMULÁRIO ── -->
+      <div *ngIf="!tokenInvalido && !sucesso" class="etapa-content">
+        <div class="etapa-icon etapa-icon--senha">
+          <i class="bi bi-lock-fill"></i>
+        </div>
+        <h1>Nova senha</h1>
+        <p class="subtitle">Escolha uma senha segura com pelo menos 6 caracteres.</p>
+
+        <form class="forms" [formGroup]="form" (ngSubmit)="redefinir()">
+          <div class="field-group">
+            <label class="field-label">Nova senha</label>
+            <div class="input-password">
+              <input
+                [type]="mostrarSenha ? 'text' : 'password'"
+                placeholder="Nova senha"
+                formControlName="novaSenha"
+              />
+              <button *ngIf="f['novaSenha'].value" type="button" (click)="toggleSenha()" class="eye-btn">
+                <i [class]="mostrarSenha ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill'"></i>
+              </button>
+            </div>
+            <small class="text-danger" *ngIf="f['novaSenha'].touched && f['novaSenha'].invalid">
+              A senha deve ter no mínimo 6 caracteres.
+            </small>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Confirmar nova senha</label>
+            <div class="input-password">
+              <input
+                [type]="mostrarSenha ? 'text' : 'password'"
+                placeholder="Confirmar nova senha"
+                formControlName="confirmarSenha"
+              />
+            </div>
+            <small class="text-danger"
+              *ngIf="f['confirmarSenha'].touched && f['novaSenha'].value !== f['confirmarSenha'].value">
+              As senhas não coincidem.
+            </small>
+          </div>
+
+          <button type="submit" class="btn-default" [disabled]="carregando">
+            <span *ngIf="!carregando"><i class="bi bi-shield-check-fill"></i> Redefinir senha</span>
+            <span *ngIf="carregando"><span class="spinner-border spinner-border-sm"></span> Salvando...</span>
+          </button>
+
+          <p class="login-text">
+            <a class="link-action" (click)="navigation.irPara('login')">Voltar ao login</a>
+          </p>
+        </form>
+      </div>
+
+    </div>
+  </section>
+</div>

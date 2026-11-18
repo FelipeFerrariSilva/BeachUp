@@ -1,0 +1,190 @@
+<div class="mt-wrapper">
+
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  <div class="mt-body">
+
+    <div class="mt-header">
+      <div class="mt-header-left">
+        <div class="mt-eyebrow"><i class="bi bi-bar-chart-fill"></i> Métricas</div>
+        <h1 class="mt-titulo">Painel de desempenho</h1>
+        <p class="mt-sub">Acompanhe o desempenho das suas quadras e arenas em tempo real.</p>
+      </div>
+
+      <div class="mt-periodo-tabs">
+        <button class="mt-tab" [class.ativo]="periodoSelecionado === '30'" (click)="mudarPeriodo('30')">30 dias</button>
+        <button class="mt-tab" [class.ativo]="periodoSelecionado === '90'" (click)="mudarPeriodo('90')">90 dias</button>
+        <button class="mt-tab" [class.ativo]="periodoSelecionado === '365'" (click)="mudarPeriodo('365')">1 ano</button>
+        <button class="mt-tab" [class.ativo]="periodoSelecionado === 'todos'" (click)="mudarPeriodo('todos')">Tudo</button>
+      </div>
+    </div>
+
+    @if (carregando) {
+    <div class="mt-loading">
+      <div class="mt-spinner"></div>
+      <span>Calculando métricas...</span>
+    </div>
+    } @else {
+
+    <div class="mt-kpi-grid">
+      @for (k of kpis; track k.label) {
+      <div class="mt-kpi" [class]="'mt-kpi--' + k.cor">
+        <div class="mt-kpi-top">
+          <span class="mt-kpi-label">{{ k.label }}</span>
+          <div class="mt-kpi-icon"><i class="bi {{k.icone}}"></i></div>
+        </div>
+        <div class="mt-kpi-valor">{{ k.valor }}</div>
+        <div class="mt-kpi-sub">
+          @if (k.tendencia === 'up') { <i class="bi bi-arrow-up-short mt-tend-up"></i> }
+          @else if (k.tendencia === 'down') { <i class="bi bi-arrow-down-short mt-tend-down"></i> }
+          {{ k.sub }}
+        </div>
+      </div>
+      }
+    </div>
+
+    <div class="mt-graficos">
+
+      <div class="mt-card">
+        <div class="mt-card-header">
+          <h2 class="mt-card-titulo"><i class="bi bi-bar-chart"></i> Reservas por mês</h2>
+          <span class="mt-card-sub">Últimos 6 meses</span>
+        </div>
+
+        <div class="mt-chart-barras">
+          @for (m of reservasPorMes; track m.mes) {
+          <div class="mt-barra-grupo">
+            <div class="mt-barra-wrap">
+              <div class="mt-barra mt-barra--conf" [style.height]="alturaBarraMes(m.confirmadas, 'confirmadas')"
+                [title]="m.confirmadas + ' confirmadas'"></div>
+              <div class="mt-barra mt-barra--canc" [style.height]="alturaBarraMes(m.canceladas, 'confirmadas')"
+                [title]="m.canceladas + ' canceladas'"></div>
+            </div>
+
+            <span class="mt-barra-label">{{ m.mes }}</span>
+          </div>
+          }
+        </div>
+        <div class="mt-legenda">
+          <span class="mt-legenda-item"><span class="mt-legenda-cor mt-legenda-cor--conf"></span> Confirmadas</span>
+          <span class="mt-legenda-item"><span class="mt-legenda-cor mt-legenda-cor--canc"></span> Canceladas</span>
+        </div>
+      </div>
+
+      <div class="mt-card">
+        <div class="mt-card-header">
+          <h2 class="mt-card-titulo"><i class="bi bi-graph-up"></i> Faturamento por mês</h2>
+          <span class="mt-card-sub">Reservas confirmadas</span>
+        </div>
+        <div class="mt-chart-barras">
+          @for (m of reservasPorMes; track m.mes) {
+          <div class="mt-barra-grupo">
+            <div class="mt-barra-wrap">
+              <div class="mt-barra mt-barra--fat" [style.height]="alturaBarraMes(m.faturamento, 'faturamento')"
+                [title]="formatarValor(m.faturamento)">
+                <span class="mt-barra-valor" *ngIf="m.faturamento > 0">{{ formatarValorCompacto(m.faturamento) }}</span>
+              </div>
+            </div>
+            <span class="mt-barra-label">{{ m.mes }}</span>
+          </div>
+          }
+        </div>
+      </div>
+
+      <div class="mt-card">
+        <div class="mt-card-header">
+          <h2 class="mt-card-titulo"><i class="bi bi-calendar-week"></i> Dias mais movimentados</h2>
+          <span class="mt-card-sub">Confirmadas por dia da semana</span>
+        </div>
+        <div class="mt-chart-horizontal">
+          @for (d of reservasPorDia; track d.dia) {
+          <div class="mt-hbarra-row">
+            <span class="mt-hbarra-label">{{ d.dia }}</span>
+            <div class="mt-hbarra-track">
+              <div class="mt-hbarra-fill" [style.width]="alturaBarraDia(d.total)"></div>
+            </div>
+            <span class="mt-hbarra-valor">{{ d.total }}</span>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-card mt-card-full">
+      <div class="mt-card-header">
+        <h2 class="mt-card-titulo"><i class="bi bi-trophy-fill"></i> Ranking de quadras</h2>
+        <span class="mt-card-sub">Ordenado por faturamento</span>
+      </div>
+
+      @if (ranking.length === 0) {
+      <div class="mt-vazio">
+        <i class="bi bi-geo-alt"></i>
+        <span>Nenhuma quadra encontrada.</span>
+      </div>
+      } @else {
+      <div class="mt-ranking-list">
+        @for (q of ranking; track q.nome; let i = $index) {
+        <div class="mt-ranking-item" [class.mt-ranking-item--top]="i === 0">
+          <div class="mt-ranking-pos" [class.mt-pos--ouro]="i === 0" [class.mt-pos--prata]="i === 1" [class.mt-pos--bronze]="i === 2">
+            @if (i === 0) { <i class="bi bi-trophy-fill"></i> }
+            @else { {{ i + 1 }} }
+          </div>
+
+          <div class="mt-ranking-info">
+            <span class="mt-ranking-nome">{{ q.nome }}</span>
+            <span class="mt-ranking-arena"><i class="bi bi-building"></i> {{ q.arenaNome }}</span>
+          </div>
+
+          <div class="mt-ranking-stats">
+            <div class="mt-stat">
+              <span class="mt-stat-val">{{ q.totalReservas }}</span>
+              <span class="mt-stat-label">reservas</span>
+            </div>
+
+            <div class="mt-stat">
+              <span class="mt-stat-val">{{ q.taxaOcupacao }}%</span>
+              <span class="mt-stat-label">ocupação</span>
+            </div>
+
+            <div class="mt-stat mt-stat--destaque">
+              <span class="mt-stat-val">{{ formatarValor(q.faturamento) }}</span>
+              <span class="mt-stat-label">faturamento</span>
+            </div>
+          </div>
+
+          <div class="mt-ranking-barra-wrap">
+            <div class="mt-ranking-barra" [style.width]="(q.faturamento / (ranking[0].faturamento || 1) * 100) + '%'"></div>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="mt-card mt-card-full">
+      <div class="mt-card-header">
+        <h2 class="mt-card-titulo"><i class="bi bi-pie-chart-fill"></i> Status das reservas</h2>
+        <span class="mt-card-sub">No período selecionado</span>
+      </div>
+
+      <div class="mt-status-grid">
+        <div class="mt-status-item mt-status--conf">
+          <div class="mt-status-num">{{ confirmadasCount }}</div>
+          <div class="mt-status-label"><i class="bi bi-check-circle-fill"></i> Confirmadas</div>
+        </div>
+
+        <div class="mt-status-item mt-status--pend">
+          <div class="mt-status-num">{{ pendentesCount }}</div>
+          <div class="mt-status-label"><i class="bi bi-hourglass-split"></i> Pendentes</div>
+        </div>
+
+        <div class="mt-status-item mt-status--canc">
+          <div class="mt-status-num">{{ canceladasCount }}</div>
+          <div class="mt-status-label"><i class="bi bi-x-circle-fill"></i> Canceladas</div>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+</div>

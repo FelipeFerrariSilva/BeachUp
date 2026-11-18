@@ -1,0 +1,206 @@
+<app-menu-lateral></app-menu-lateral>
+<app-nav-bar></app-nav-bar>
+
+<div class="cd-wrapper">
+  <div class="cd-body">
+
+    <!-- Voltar -->
+    <button class="btn-voltar" (click)="irPara('campeonatos')">
+      <i class="bi bi-arrow-left"></i> Campeonatos
+    </button>
+
+    <!-- Loading -->
+    <div class="estado-loading" *ngIf="carregando">
+      <div class="spinner"></div>
+      <span>Carregando campeonato...</span>
+    </div>
+
+    <!-- Erro -->
+    <div class="estado-vazio" *ngIf="!carregando && erro">
+      <i class="bi bi-exclamation-triangle"></i>
+      <p>{{ erro }}</p>
+    </div>
+
+    <ng-container *ngIf="!carregando && campeonato">
+
+      <!-- ── Header ── -->
+      <div class="cd-header">
+        <div class="cd-header-info">
+          <span class="status-pill" [attr.data-status]="campeonato.status">
+            {{ statusLabel[campeonato.status] }}
+          </span>
+          <h1>{{ campeonato.nome }}</h1>
+          <p class="cd-descricao" *ngIf="campeonato.descricao">{{ campeonato.descricao }}</p>
+          <div class="cd-meta">
+            <span *ngIf="campeonato.categoria"><i class="bi bi-tag-fill"></i> {{ campeonato.categoria }}</span>
+            <span><i class="bi bi-calendar3"></i> {{ formatarData(campeonato.dataInicio) }}<ng-container *ngIf="campeonato.dataFim"> – {{ formatarData(campeonato.dataFim) }}</ng-container></span>
+            <span><i class="bi bi-people-fill"></i> {{ campeonato.totalInscritos }}/16 inscritos</span>
+          </div>
+        </div>
+
+        <div class="cd-header-actions">
+          <button
+            class="btn-action"
+            *ngIf="souDono && campeonato.status === 'INSCRICOES_ABERTAS'"
+            (click)="copiarLinkInscricao()"
+          >
+            <i class="bi bi-link-45deg"></i> Copiar link
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Campeão ── -->
+      <div class="painel-campeao" *ngIf="campeonato.status === 'FINALIZADO' && campeonato.idTimeVencedor">
+        <div class="campeao-trophy"><i class="bi bi-trophy-fill"></i></div>
+        <div>
+          <span class="campeao-label">Campeão do torneio</span>
+          <h2 class="campeao-nome">{{ nomeCampeao() }}</h2>
+        </div>
+      </div>
+
+      <!-- ── Inscrição (jogador) ── -->
+      <div class="painel-inscricao" *ngIf="auth.isJogador() && campeonato.status === 'INSCRICOES_ABERTAS'">
+        <div class="painel-inscricao-header">
+          <i class="bi bi-person-plus-fill"></i>
+          <h3>Inscrever meu time</h3>
+        </div>
+
+        <div *ngIf="carregandoTimes" class="loading-row">
+          <div class="spinner spinner-sm"></div>
+          <span>Carregando seus times...</span>
+        </div>
+
+        <p class="painel-vazio" *ngIf="!carregandoTimes && meusTimesElegiveis.length === 0">
+          Você não tem nenhum time com 2 jogadores aceitos.
+          <button class="btn-link" (click)="irPara('convidar-jogadores')">Gerenciar times →</button>
+        </p>
+
+        <div class="painel-form" *ngIf="!carregandoTimes && meusTimesElegiveis.length > 0">
+          <select class="cd-select" [(ngModel)]="timeSelecionadoId">
+            <option [ngValue]="null" disabled>Selecione um time</option>
+            <option *ngFor="let t of meusTimesElegiveis" [ngValue]="t.id">{{ t.nome }}</option>
+          </select>
+          <button class="btn-primary" [disabled]="!timeSelecionadoId || inscrevendo" (click)="inscreverTime()">
+            <div class="spinner spinner-sm" *ngIf="inscrevendo"></div>
+            {{ inscrevendo ? 'Inscrevendo...' : 'Inscrever time' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Chaveamento ── -->
+      <div class="bracket-section" *ngIf="fasesOrdenadas.length > 0">
+        <div class="bracket-section-header">
+          <h3><i class="bi bi-diagram-3-fill"></i> Chaveamento</h3>
+          <span class="bracket-info">{{ fasesOrdenadas[0] }} → Final</span>
+        </div>
+
+        <div class="bracket-scroll">
+          <div class="bracket">
+
+            <ng-container *ngFor="let fase of fasesOrdenadas; let fi = index; let ultimo = last">
+
+              <!-- Coluna de fase -->
+              <div class="bracket-col">
+                <div class="bracket-col-label">{{ fase }}</div>
+
+                <div class="bracket-col-jogos">
+                  <ng-container *ngFor="let p of partidasDaFase(fase); trackBy: trackById">
+
+                    <div class="match-wrap">
+                      <div class="match-card" [class.match-card--finalizado]="p.status === 'FINALIZADA'">
+
+                        <!-- Time casa -->
+                        <div class="match-team" [class.match-team--winner]="p.idTimeVencedor === p.idTimeCasa" [class.match-team--loser]="p.status === 'FINALIZADA' && p.idTimeVencedor !== p.idTimeCasa">
+                          <span class="match-team-seed" *ngIf="p.rodada">{{ p.rodada * 2 - 1 }}</span>
+                          <span class="match-team-name">{{ p.nomeTimeCasa || 'A definir' }}</span>
+                          <span class="match-team-score" *ngIf="p.placarTimeCasa !== null">{{ p.placarTimeCasa }}</span>
+                        </div>
+
+                        <div class="match-divider"></div>
+
+                        <!-- Time visitante -->
+                        <div class="match-team" [class.match-team--winner]="p.idTimeVencedor === p.idTimeVisitante" [class.match-team--loser]="p.status === 'FINALIZADA' && p.idTimeVencedor !== p.idTimeVisitante">
+                          <span class="match-team-seed" *ngIf="p.rodada">{{ p.rodada * 2 }}</span>
+                          <span class="match-team-name">{{ p.nomeTimeVisitante || 'A definir' }}</span>
+                          <span class="match-team-score" *ngIf="p.placarTimeVisitante !== null">{{ p.placarTimeVisitante }}</span>
+                        </div>
+
+                        <!-- Footer do card -->
+                        <div class="match-footer">
+                          <span class="match-badge" [class.match-badge--done]="p.status === 'FINALIZADA'">
+                            <i class="bi" [class.bi-check-circle-fill]="p.status === 'FINALIZADA'" [class.bi-hourglass-split]="p.status !== 'FINALIZADA'"></i>
+                            {{ p.status === 'FINALIZADA' ? 'Finalizada' : 'Aguardando' }}
+                          </span>
+                          <button
+                            class="btn-resultado"
+                            *ngIf="podeRegistrarResultado(p)"
+                            (click)="abrirFormResultado(p)"
+                          >
+                            <i class="bi bi-pencil-fill"></i> Resultado
+                          </button>
+                        </div>
+
+                        <!-- Form resultado inline -->
+                        <form
+                          class="match-resultado-form"
+                          *ngIf="partidaEditandoId === p.id"
+                          [formGroup]="resultadoForm"
+                          (ngSubmit)="salvarResultado(p)"
+                        >
+                          <div class="placar-row">
+                            <div class="placar-field">
+                              <label>{{ p.nomeTimeCasa }}</label>
+                              <input type="number" min="0" formControlName="placarTimeCasa" />
+                            </div>
+                            <span class="placar-vs">×</span>
+                            <div class="placar-field">
+                              <label>{{ p.nomeTimeVisitante }}</label>
+                              <input type="number" min="0" formControlName="placarTimeVisitante" />
+                            </div>
+                          </div>
+                          <div class="match-form-actions">
+                            <button type="button" class="btn-cancel-sm" (click)="fecharFormResultado()">Cancelar</button>
+                            <button type="submit" class="btn-save-sm" [disabled]="salvandoResultado">
+                              <div class="spinner spinner-sm" *ngIf="salvandoResultado"></div>
+                              {{ salvandoResultado ? 'Salvando...' : 'Salvar' }}
+                            </button>
+                          </div>
+                        </form>
+
+                      </div>
+
+                      <!-- Conector direito (linha do bracket) -->
+                      <div class="match-connector" *ngIf="!ultimo"></div>
+                    </div>
+
+                  </ng-container>
+                </div>
+              </div>
+
+              <!-- Linha vertical de junção entre colunas -->
+              <div class="bracket-join" *ngIf="!ultimo">
+                <ng-container *ngFor="let p of partidasDaFase(fase); let ji = index">
+                  <div class="join-line" [class.join-line--par]="ji % 2 === 1"></div>
+                </ng-container>
+              </div>
+
+            </ng-container>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Sem chaveamento -->
+      <div class="estado-vazio" *ngIf="fasesOrdenadas.length === 0">
+        <i class="bi bi-hourglass-split"></i>
+        <p>
+          O chaveamento ainda não foi sorteado.
+          <ng-container *ngIf="campeonato.status === 'INSCRICOES_ABERTAS'">
+            Aguardando a empresa iniciar o campeonato com 8 ou 16 times confirmados.
+          </ng-container>
+        </p>
+      </div>
+
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reserva Confirmada — BeachUp</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0a0a0a;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0a0a0a;padding:40px 16px;">
+  <tr>
+    <td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="background-color:#161616;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);box-shadow:0 24px 60px rgba(0,0,0,0.6);">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#e97c23 0%,#c96010 100%);padding:32px 40px;text-align:center;">
+            <h1 style="margin:0;color:#fff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">🏖️ BeachUp</h1>
+            <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">Plataforma de Beach Tennis</p>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:36px 40px;">
+            <h2 style="margin:0 0 8px;color:#f0f0f0;font-size:20px;font-weight:700;">Nova reserva confirmada! 🎾</h2>
+            <p style="margin:0 0 28px;color:#c0c0c0;font-size:15px;line-height:1.7;">
+              Olá, <strong style="color:#f0f0f0;" th:text="${nomeEmpresa}">Empresa</strong>!<br/>
+              Uma reserva foi confirmada para a sua quadra. Confira os detalhes abaixo:
+            </p>
+
+            <!-- Card de detalhes -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="background-color:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+              <tr>
+                <td style="padding:20px 24px;">
+                  <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="padding:10px 0;color:#777;font-size:13px;width:130px;">Quadra</td>
+                      <td style="padding:10px 0;color:#f0f0f0;font-size:14px;font-weight:600;" th:text="${nomeQuadra}">Nome da Quadra</td>
+                    </tr>
+                    <tr><td colspan="2" style="border-top:1px solid rgba(255,255,255,0.06);"></td></tr>
+                    <tr>
+                      <td style="padding:10px 0;color:#777;font-size:13px;">Arena</td>
+                      <td style="padding:10px 0;color:#c0c0c0;font-size:14px;" th:text="${nomeArena}">Nome da Arena</td>
+                    </tr>
+                    <tr><td colspan="2" style="border-top:1px solid rgba(255,255,255,0.06);"></td></tr>
+                    <tr>
+                      <td style="padding:10px 0;color:#777;font-size:13px;">Jogador</td>
+                      <td style="padding:10px 0;color:#c0c0c0;font-size:14px;" th:text="${nomeJogador}">Nome do Jogador</td>
+                    </tr>
+                    <tr><td colspan="2" style="border-top:1px solid rgba(255,255,255,0.06);"></td></tr>
+                    <tr>
+                      <td style="padding:10px 0;color:#777;font-size:13px;">Início</td>
+                      <td style="padding:10px 0;color:#c0c0c0;font-size:14px;" th:text="${dataHoraInicio}">00/00/0000 00:00</td>
+                    </tr>
+                    <tr><td colspan="2" style="border-top:1px solid rgba(255,255,255,0.06);"></td></tr>
+                    <tr>
+                      <td style="padding:10px 0;color:#777;font-size:13px;">Término</td>
+                      <td style="padding:10px 0;color:#c0c0c0;font-size:14px;" th:text="${dataHoraFim}">00/00/0000 00:00</td>
+                    </tr>
+                    <tr><td colspan="2" style="border-top:1px solid rgba(255,255,255,0.06);"></td></tr>
+                    <tr>
+                      <td style="padding:10px 0;color:#777;font-size:13px;">Valor total</td>
+                      <td style="padding:10px 0;color:#e97c23;font-size:18px;font-weight:700;" th:text="${valorTotal}">R$ 0,00</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:24px 0 0;color:#777;font-size:14px;line-height:1.6;">
+              Acesse a plataforma para gerenciar suas reservas e acompanhar seu faturamento.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background-color:#111;border-top:1px solid rgba(255,255,255,0.05);padding:20px 40px;text-align:center;">
+            <p style="margin:0;color:#555;font-size:12px;line-height:1.8;">
+              Este é um email automático do BeachUp. Por favor, não responda.<br/>
+              &copy; 2026 BeachUp. Todos os direitos reservados.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

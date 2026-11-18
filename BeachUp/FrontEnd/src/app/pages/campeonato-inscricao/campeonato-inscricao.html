@@ -1,0 +1,83 @@
+<div class="ci-wrapper">
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  <div class="ci-body">
+    <div class="ci-card">
+      <div class="ci-icon"><i class="bi bi-trophy-fill"></i></div>
+
+      <div class="estado-loading" *ngIf="carregando">
+        <div class="spinner-border text-secondary spinner-sm"></div>
+        <span>Carregando convite...</span>
+      </div>
+
+      <ng-container *ngIf="!carregando && !auth.isLoggedIn()">
+        <h2>Você foi convidado para um campeonato!</h2>
+        <p>Faça login com sua conta de jogador para inscrever seu time.</p>
+        <button class="btn-primary" (click)="irPara('login')">
+          <i class="bi bi-box-arrow-in-right"></i> Entrar
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="!carregando && auth.isLoggedIn() && naoEncontrado">
+        <h2>Link inválido</h2>
+        <p>Não encontramos nenhum campeonato com inscrições abertas para este link.</p>
+        <button class="btn-secondary" (click)="irPara('campeonatos')">Ver campeonatos</button>
+      </ng-container>
+
+      <ng-container *ngIf="!carregando && auth.isLoggedIn() && campeonato">
+        <span class="status-pill" [attr.data-status]="campeonato.status">
+          {{ statusLabel[campeonato.status] }}
+        </span>
+        <h2>{{ campeonato.nome }}</h2>
+        <p class="ci-descricao" *ngIf="campeonato.descricao">{{ campeonato.descricao }}</p>
+
+        <div class="ci-meta">
+          <span *ngIf="campeonato.categoria"><i class="bi bi-tag-fill"></i> {{ campeonato.categoria }}</span>
+          <span><i class="bi bi-calendar3"></i> {{ formatarData(campeonato.dataInicio) }}</span>
+          <span><i class="bi bi-people-fill"></i> {{ campeonato.totalInscritos }}/16 times</span>
+        </div>
+
+        <div *ngIf="campeonato.status !== 'INSCRICOES_ABERTAS'" class="ci-aviso">
+          <i class="bi bi-lock-fill"></i> As inscrições para este campeonato já foram encerradas.
+        </div>
+
+        <div *ngIf="campeonato.status === 'INSCRICOES_ABERTAS' && !auth.isJogador()" class="ci-aviso">
+          <i class="bi bi-info-circle"></i> Apenas contas de jogador podem inscrever times.
+        </div>
+
+        <ng-container *ngIf="campeonato.status === 'INSCRICOES_ABERTAS' && auth.isJogador()">
+          <div class="ci-sucesso" *ngIf="inscricaoConcluida">
+            <i class="bi bi-check-circle-fill"></i> Time inscrito com sucesso!
+          </div>
+
+          <ng-container *ngIf="!inscricaoConcluida">
+            <div class="loading-row" *ngIf="carregandoTimes">
+              <div class="spinner-border text-secondary spinner-sm"></div>
+              <span>Carregando seus times...</span>
+            </div>
+
+            <p class="ci-aviso" *ngIf="!carregandoTimes && meusTimesElegiveis.length === 0">
+              Você não tem nenhum time completo (com 2 jogadores aceitos) para inscrever.
+              <button class="btn-link" (click)="irPara('convidar-jogadores')">Gerenciar meus times →</button>
+            </p>
+
+            <div class="ci-form" *ngIf="!carregandoTimes && meusTimesElegiveis.length > 0">
+              <select [(ngModel)]="timeSelecionadoId">
+                <option [ngValue]="null" disabled>Selecione um time</option>
+                <option *ngFor="let t of meusTimesElegiveis" [ngValue]="t.id">{{ t.nome }}</option>
+              </select>
+              <button class="btn-primary" [disabled]="!timeSelecionadoId || inscrevendo" (click)="inscrever()">
+                {{ inscrevendo ? 'Inscrevendo...' : 'Inscrever time' }}
+              </button>
+            </div>
+          </ng-container>
+        </ng-container>
+
+        <button class="btn-link ci-ver-detalhes" (click)="irPara('campeonatos')">
+          Ver todos os campeonatos →
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</div>

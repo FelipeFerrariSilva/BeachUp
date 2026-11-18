@@ -1,0 +1,20 @@
+package Backend.BeachUp.Repository;
+
+import Backend.BeachUp.Model.HorarioFuncionamentoModel;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.time.DayOfWeek;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface HorarioFuncionamentoRepository extends JpaRepository<HorarioFuncionamentoModel, Long> {
+
+    List<HorarioFuncionamentoModel> findByArenaId(Long arenaId);
+
+    Optional<HorarioFuncionamentoModel> findByArenaIdAndDiaSemana(Long arenaId, DayOfWeek diaSemana);
+
+    void deleteByArenaIdAndDiaSemana(Long arenaId, DayOfWeek diaSemana);
+
+}

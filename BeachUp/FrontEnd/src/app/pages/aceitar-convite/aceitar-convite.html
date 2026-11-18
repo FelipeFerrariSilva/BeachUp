@@ -1,0 +1,61 @@
+<div class="ac-wrapper">
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  <div class="ac-body">
+    <div class="ac-card">
+      <div class="ac-icon"><i class="bi bi-people-fill"></i></div>
+
+      <div class="estado-loading" *ngIf="carregando">
+        <div class="spinner-border text-secondary spinner-sm"></div>
+        <span>Carregando convite...</span>
+      </div>
+
+      <ng-container *ngIf="!carregando && !auth.isLoggedIn()">
+        <h2>Você recebeu um convite de time!</h2>
+        <p>Faça login com sua conta de jogador para entrar na dupla.</p>
+        <button class="btn-primary" (click)="irPara('login')">
+          <i class="bi bi-box-arrow-in-right"></i> Entrar
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="!carregando && auth.isLoggedIn() && tokenInvalido">
+        <h2>Link inválido</h2>
+        <p>Esse convite não existe mais — talvez já tenha sido usado ou o time já esteja completo.</p>
+        <button class="btn-secondary" (click)="irPara('convidar-jogadores')">Ver meus times</button>
+      </ng-container>
+
+      <ng-container *ngIf="!carregando && auth.isLoggedIn() && time">
+        <h2>{{ time.nome }}</h2>
+        <p class="ac-descricao" *ngIf="time.descricao">{{ time.descricao }}</p>
+
+        <div class="ac-membros">
+          <div class="membro" *ngFor="let m of time.membros">
+            <i class="bi bi-person-circle"></i>
+            <span>{{ m.nomeUsuario }}</span>
+          </div>
+        </div>
+
+        <div class="ac-sucesso" *ngIf="aceito">
+          <i class="bi bi-check-circle-fill"></i> Você entrou no time!
+          <button class="btn-secondary btn-sm" (click)="irPara('convidar-jogadores')">Ver meu time</button>
+        </div>
+
+        <ng-container *ngIf="!aceito">
+          <div class="ac-aviso" *ngIf="!auth.isJogador()">
+            <i class="bi bi-info-circle"></i> Apenas contas de jogador podem entrar em um time.
+          </div>
+
+          <button
+            class="btn-primary"
+            *ngIf="auth.isJogador()"
+            [disabled]="aceitando"
+            (click)="aceitar()"
+          >
+            {{ aceitando ? 'Entrando...' : 'Aceitar e entrar no time' }}
+          </button>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+</div>

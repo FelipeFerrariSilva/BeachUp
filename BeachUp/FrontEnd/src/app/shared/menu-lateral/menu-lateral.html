@@ -1,0 +1,123 @@
+<div class="home-top">
+  <button type="button" class="menu-btn" data-bs-toggle="offcanvas" data-bs-target="#menuLateral"
+    aria-controls="menuLateral">
+    <mat-icon>menu</mat-icon>
+  </button>
+</div>
+
+<div class="offcanvas offcanvas-start menu-lateral" tabindex="-1" id="menuLateral" aria-labelledby="menuLateralLabel">
+
+  <div class="offcanvas-header menu-header">
+    <div class="menu-brand">
+      <img src="assets/logo/logo.png" alt="Logo BeachUp" class="menu-logo" />
+      <div>
+        <h5 class="offcanvas-title" id="menuLateralLabel">BeachUp</h5>
+        <span class="menu-subtitle">Beach Tennis Platform</span>
+      </div>
+    </div>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <div class="offcanvas-body menu-body">
+
+    <nav class="menu-nav">
+
+      <a *ngIf="auth.isJogador()" (click)="irPara('/reservas')" data-bs-dismiss="offcanvas">
+        <i class="bi bi-calendar-check"></i>
+        <span>Reservar Quadras</span>
+      </a>
+
+      <a *ngIf="auth.isJogador()" (click)="irPara('/minhas-reservas')" data-bs-dismiss="offcanvas">
+        <i class="bi bi-list-check"></i>
+        <span>Minhas Reservas</span>
+      </a>
+
+      <a *ngIf="auth.isJogador()" (click)="irPara('/convidar-jogadores')" data-bs-dismiss="offcanvas">
+        <i class="bi bi-people"></i>
+        <span>Times</span>
+      </a>
+
+      <a *ngIf="auth.isJogador()" (click)="irPara('/campeonatos')" data-bs-dismiss="offcanvas">
+        <i class="bi bi-trophy"></i>
+        <span>Campeonatos</span>
+      </a>
+
+      <a *ngIf="auth.isEmpresa()" (click)="irPara('/dashboard-dono')" data-bs-dismiss="offcanvas">
+        <i class="bi bi-house"></i>
+        <span>Inicio</span>
+      </a>
+
+      <a *ngIf="auth.isEmpresa()" (click)="irPara('/arena')" data-bs-dismiss="offcanvas">
+        <i class="bi bi-plus-lg"></i>
+        <span>Cadastrar Arena</span>
+      </a>
+
+      <a *ngIf="auth.isEmpresa()" (click)="irPara('/quadras-dono')" data-bs-dismiss="offcanvas">
+        <i class="bi bi-clipboard"></i>
+        <span>Minhas quadras</span>
+      </a>
+
+      <a *ngIf="auth.isEmpresa()" (click)="irPara('/campeonatos-dono')" data-bs-dismiss="offcanvas">
+        <i class="bi bi-trophy"></i>
+        <span>Campeonatos</span>
+      </a>
+
+      <a *ngIf="auth.isEmpresa()" (click)="irPara('metricas')" data-bs-dismiss="offcanvas">
+        <i class="bi bi-bar-chart-line-fill"></i>
+        <span>Metricas</span>
+      </a>
+
+      <a *ngIf="auth.isEmpresa()" (click)="irPara('/conta')" data-bs-dismiss="offcanvas">
+        <i class="bi bi-currency-dollar"></i>
+        <span>Conecte sua conta</span>
+      </a>
+
+      <a (click)="irPara('sobre')" data-bs-dismiss="offcanvas">
+        <mat-icon>info</mat-icon>
+        <span>Sobre-nos</span>
+      </a>
+    </nav>
+
+    <div class="menu-footer">
+
+      <div class="menu-divider"></div>
+
+      <div class="menu-perfil" *ngIf="auth.isLoggedIn() && perfil" (click)="irPara('perfil')"
+        data-bs-dismiss="offcanvas">
+        <div class="perfil-avatar-wrap">
+          <img *ngIf="perfil.fotoUrl" [src]="perfil.fotoUrl" [alt]="perfil.nome" class="perfil-foto" />
+          <img *ngIf="!perfil.fotoUrl" src="assets/user/user.png" alt="perfil" class="perfil-foto" />
+          <span class="perfil-status-dot"></span>
+        </div>
+
+        <div class="perfil-info">
+          <span class="perfil-nome">{{ perfil.nome }}</span>
+          <span class="perfil-email">{{ perfil.email }}</span>
+          <span class="perfil-role" *ngIf="auth.isEmpresa()">Proprietário</span>
+          <span class="perfil-role" *ngIf="auth.isJogador()">Jogador</span>
+        </div>
+      </div>
+
+      <div class="menu-perfil menu-perfil--skeleton" *ngIf="auth.isLoggedIn() && !perfil">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-info">
+          <div class="skeleton-line skeleton-line--lg"></div>
+          <div class="skeleton-line skeleton-line--sm"></div>
+        </div>
+      </div>
+
+      <div class="menu-actions">
+        <button *ngIf="!auth.isLoggedIn()" class="menu-login-btn" (click)="irPara('login')" data-bs-dismiss="offcanvas">
+          <i class="bi bi-person-circle"></i>
+          Entrar
+        </button>
+
+        <button *ngIf="auth.isLoggedIn()" class="menu-logout-btn" (click)="logout()" data-bs-dismiss="offcanvas">
+          <i class="bi bi-box-arrow-right"></i>
+          Sair
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,208 @@
+<div class="av-wrapper">
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  <main class="av-body">
+
+    @if (carregando) {
+    <div class="av-loading">
+      <div class="av-loading-inner">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Carregando reserva…</p>
+      </div>
+    </div>
+    }
+
+    @if (!carregando && reserva) {
+
+    <header class="av-page-header">
+      <button class="btn-voltar" (click)="navigation.irPara('minhas-reservas')" title="Voltar">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <div class="header-text">
+        <h1 class="page-title">
+          @if (jaAvaliou) { Sua avaliação } @else { Avaliar reserva }
+        </h1>
+        <p class="page-sub">
+          @if (jaAvaliou) {
+          Você já avaliou esta reserva
+          } @else {
+          Compartilhe sua experiência e ajude outros jogadores
+          }
+        </p>
+      </div>
+    </header>
+
+    <section class="av-card resumo-card">
+      <div class="resumo-header">
+        <div class="resumo-icon">
+          <i class="bi bi-calendar2-check-fill"></i>
+        </div>
+        <div class="resumo-info">
+          <span class="resumo-quadra">{{ reserva.nomeQuadra }}</span>
+          <span class="resumo-arena">
+            <i class="bi bi-geo-alt"></i>
+            {{ reserva.nomeJogador }}
+          </span>
+        </div>
+        <span class="badge-concluida">
+          <i class="bi bi-check-circle-fill"></i> Concluída
+        </span>
+      </div>
+
+      <div class="resumo-detalhes">
+        <div class="detalhe-item">
+          <i class="bi bi-clock"></i>
+          <div>
+            <span class="detalhe-label">Início</span>
+            <span class="detalhe-value">{{ formatarData(reserva.dataHoraInicio) }}</span>
+          </div>
+        </div>
+        <div class="detalhe-divider"></div>
+        <div class="detalhe-item">
+          <i class="bi bi-flag"></i>
+          <div>
+            <span class="detalhe-label">Fim</span>
+            <span class="detalhe-value">{{ formatarData(reserva.dataHoraFim) }}</span>
+          </div>
+        </div>
+        <div class="detalhe-divider"></div>
+        <div class="detalhe-item">
+          <i class="bi bi-hourglass-split"></i>
+          <div>
+            <span class="detalhe-label">Duração</span>
+            <span class="detalhe-value">{{ formatarDuracao() }}</span>
+          </div>
+        </div>
+        <div class="detalhe-divider"></div>
+        <div class="detalhe-item">
+          <i class="bi bi-currency-dollar"></i>
+          <div>
+            <span class="detalhe-label">Valor</span>
+            <span class="detalhe-value highlight">{{ formatarValor(reserva.valorTotal) }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    @if (jaAvaliou) {
+    <div class="banner-ja-avaliou">
+      <div class="banner-icon">
+        <i class="bi bi-patch-check-fill"></i>
+      </div>
+      <div>
+        <strong>Avaliação registrada com sucesso!</strong>
+        <p>Os campos abaixo são somente leitura.</p>
+      </div>
+    </div>
+    }
+
+    <section class="av-card avaliacao-card">
+
+      <div class="av-section-header">
+        <div class="av-section-icon">
+          <i class="bi bi-star-half"></i>
+        </div>
+        <div>
+          <h2 class="av-section-title">
+            @if (jaAvaliou) { Nota atribuída } @else { Dê sua nota }
+          </h2>
+          <p class="av-section-sub">
+            @if (jaAvaliou) {
+            Avaliação registrada em {{ formatarData(reserva.dataHoraInicio) }}
+            } @else {
+            Avalie a experiência geral — quadra, arena, atendimento e estrutura
+            }
+          </p>
+        </div>
+      </div>
+
+      <div class="stars-container">
+        <div class="stars-row" [class.readonly]="jaAvaliou">
+          @for (star of starsArray; track star) {
+          <button class="star-btn" [class.filled]="star <= notaAtiva" [class.readonly]="jaAvaliou"
+            (mouseenter)="!jaAvaliou && (hoveredStar = star)" (mouseleave)="!jaAvaliou && (hoveredStar = 0)"
+            (click)="setNota(star)" [disabled]="jaAvaliou" [attr.aria-label]="'Nota ' + star + ' estrelas'">
+            <i class="bi" [class.bi-star-fill]="star <= notaAtiva" [class.bi-star]="star > notaAtiva"></i>
+          </button>
+          }
+        </div>
+
+        <div class="stars-label-area">
+          @if (notaAtiva > 0) {
+          <div class="nota-feedback" [class]="'feedback-' + notaAtiva">
+            <span class="nota-numero">{{ notaAtiva }}/5</span>
+            <span class="nota-separador">·</span>
+            <span class="nota-label">{{ labelAtual }}</span>
+            <span class="nota-separador">·</span>
+            <span class="nota-desc">{{ descricaoAtual }}</span>
+          </div>
+          } @else {
+          <span class="stars-hint">
+            <i class="bi bi-hand-index-thumb"></i>
+            Toque em uma estrela para avaliar
+          </span>
+          }
+        </div>
+      </div>
+
+      <div class="card-divider"></div>
+
+      <div class="av-field">
+        <label class="av-label" for="comentario">
+          <i class="bi bi-chat-square-text"></i>
+          Comentário
+          <span class="label-opcional">(opcional)</span>
+        </label>
+        <div class="textarea-wrapper" [class.focused]="!jaAvaliou">
+          <textarea id="comentario" class="av-textarea" [(ngModel)]="comentario" [readonly]="jaAvaliou"
+            placeholder="Conte sua experiência: piso, iluminação, atendimento, estrutura da arena, limpeza..." rows="4"
+            maxlength="500"></textarea>
+          @if (!jaAvaliou) {
+          <span class="char-count" [class.limit-near]="comentario.length > 440">
+            {{ comentario.length }}/500
+          </span>
+          }
+        </div>
+      </div>
+
+      @if (!jaAvaliou) {
+      <div class="topics-row">
+        <span class="topics-label">Sugestões:</span>
+        @for (topic of ['Piso', 'Iluminação', 'Limpeza', 'Atendimento', 'Estacionamento', 'Vestiários']; track topic) {
+        <button class="topic-chip" (click)="comentario = comentario ? comentario + ', ' + topic.toLowerCase() : topic">
+          {{ topic }}
+        </button>
+        }
+      </div>
+      }
+
+    </section>
+
+    @if (!jaAvaliou) {
+    <div class="av-actions">
+      <button class="btn-cancelar" (click)="navigation.irPara('minhas-reservas')">
+        Cancelar
+      </button>
+      <button class="btn-enviar" [disabled]="!podeConcluir || enviando" (click)="enviarAvaliacao()">
+        @if (enviando) {
+        <div class="spinner-sm"></div>
+        Enviando…
+        } @else {
+        <i class="bi bi-send-check-fill"></i>
+        Enviar avaliação
+        }
+      </button>
+    </div>
+
+    @if (!podeConcluir) {
+    <p class="hint-obrigatorio">
+      <i class="bi bi-exclamation-circle"></i>
+      Selecione pelo menos 1 estrela para continuar.
+    </p>
+    }
+    }
+
+    }
+  </main>
+</div>

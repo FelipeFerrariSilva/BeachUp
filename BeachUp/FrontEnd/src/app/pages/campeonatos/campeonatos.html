@@ -1,0 +1,78 @@
+<div class="cmp-wrapper">
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  <div class="cmp-body">
+    <div class="cmp-header">
+      <div>
+        <h1><i class="bi bi-trophy-fill"></i> Campeonatos</h1>
+        <p>Acompanhe os campeonatos de beach tennis das arenas parceiras.</p>
+      </div>
+
+      <button
+        *ngIf="auth.isEmpresa()"
+        class="btn-primary"
+        (click)="irPara('campeonatos-dono')"
+      >
+        <i class="bi bi-gear-fill"></i> Gerenciar meus campeonatos
+      </button>
+    </div>
+
+    <div class="cmp-filtros">
+      <div class="cmp-busca">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Buscar por nome ou categoria..."
+          [(ngModel)]="filtroBusca"
+        />
+      </div>
+
+      <div class="cmp-chips">
+        <button
+          *ngFor="let op of opcoesStatus"
+          class="chip"
+          [class.chip-ativo]="filtroStatus === op.valor"
+          (click)="filtroStatus = op.valor"
+        >
+          {{ op.label }}
+        </button>
+      </div>
+    </div>
+
+    <div class="estado-loading" *ngIf="carregando">
+      <div class="spinner-border text-secondary spinner-sm"></div>
+      <span>Carregando campeonatos...</span>
+    </div>
+
+    <div class="estado-vazio" *ngIf="!carregando && campeonatosFiltrados.length === 0">
+      <i class="bi bi-trophy"></i>
+      <p>Nenhum campeonato encontrado.</p>
+    </div>
+
+    <div class="cmp-grid" *ngIf="!carregando && campeonatosFiltrados.length > 0">
+      <div
+        class="cmp-card"
+        *ngFor="let c of campeonatosFiltrados; trackBy: trackById"
+        (click)="abrirCampeonato(c.id)"
+      >
+        <div class="cmp-card-top">
+          <span class="badge" [ngClass]="badgeClasse(c.status)">{{ statusLabel[c.status] }}</span>
+          <span class="cmp-categoria" *ngIf="c.categoria">{{ c.categoria }}</span>
+        </div>
+
+        <h3 class="cmp-nome">{{ c.nome }}</h3>
+        <p class="cmp-descricao" *ngIf="c.descricao">{{ c.descricao }}</p>
+
+        <div class="cmp-info">
+          <span><i class="bi bi-calendar3"></i> {{ formatarData(c.dataInicio) }}</span>
+          <span><i class="bi bi-people-fill"></i> {{ c.totalInscritos }}/16 times</span>
+        </div>
+
+        <button class="btn-secondary btn-sm">
+          Ver detalhes <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

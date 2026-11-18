@@ -1,0 +1,72 @@
+<div class="hor-wrapper">
+  <div class="hor-header">
+    <h3 class="hor-title">
+      <i class="bi bi-clock-history me-2"></i>Horários de Funcionamento
+    </h3>
+    <small class="hor-hint">Clique em um dia para definir ou alterar o horário.</small>
+  </div>
+
+  <div class="hor-loading" *ngIf="carregando">
+    <span class="spinner-border spinner-border-sm me-2"></span> Carregando...
+  </div>
+
+  <div class="hor-grid" *ngIf="!carregando">
+    <div
+      class="hor-dia"
+      *ngFor="let dia of diasSemana"
+      [class.hor-dia--aberto]="horarioDoDia(dia)"
+      [class.hor-dia--ativo]="diaAtivo === dia"
+      (click)="abrirFormDia(dia)"
+    >
+      <div class="hor-dia-nome">{{ diaLabels[dia] }}</div>
+
+      <ng-container *ngIf="horarioDoDia(dia) as h; else fechado">
+        <div class="hor-dia-tempo">
+          {{ h.horaAbertura }} – {{ h.horaFechamento }}
+        </div>
+        <button
+          class="hor-btn-remover"
+          type="button"
+          (click)="$event.stopPropagation(); remover(dia)"
+          title="Remover"
+        >
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
+      </ng-container>
+
+      <ng-template #fechado>
+        <div class="hor-dia-fechado">Fechado</div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Formulário inline -->
+  <div class="hor-form-inline" *ngIf="diaAtivo">
+    <div class="hor-form-titulo">
+      <i class="bi bi-pencil-fill me-1"></i>
+      Editando: <strong>{{ diaLabels[diaAtivo] }}</strong>
+    </div>
+
+    <form [formGroup]="horarioForm" (ngSubmit)="salvar()" class="hor-form-row">
+      <div class="hor-form-field">
+        <label class="hor-label">Abre às</label>
+        <input type="time" class="hor-input" formControlName="horaAbertura" />
+      </div>
+      <div class="hor-form-field">
+        <label class="hor-label">Fecha às</label>
+        <input type="time" class="hor-input" formControlName="horaFechamento" />
+      </div>
+      <div class="hor-form-actions">
+        <button type="submit" class="hor-btn-salvar" [disabled]="salvando">
+          <span *ngIf="!salvando"><i class="bi bi-check-lg me-1"></i>Salvar</span>
+          <span *ngIf="salvando">
+            <span class="spinner-border spinner-border-sm me-1"></span>Salvando...
+          </span>
+        </button>
+        <button type="button" class="hor-btn-cancelar" (click)="fecharForm()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,82 @@
+<div class="pagamentos-wrapper">
+  <app-menu-lateral></app-menu-lateral>
+  <app-nav-bar></app-nav-bar>
+
+  <div class="pagamentos-content">
+
+    <div class="section-header">
+      <span class="section-badge">Recebimentos</span>
+      <h2>Conecte sua conta do Mercado Pago</h2>
+      <p>
+        Para receber os pagamentos das reservas feitas na sua arena, conecte uma conta do
+        Mercado Pago. O valor de cada reserva vai direto para você, descontada apenas a taxa
+        do seu plano.
+      </p>
+    </div>
+
+    <div class="status-card sk-card" *ngIf="status === 'verificando'">
+      <div class="sk sk-icon"></div>
+      <div class="sk sk-title"></div>
+      <div class="sk sk-line"></div>
+    </div>
+
+    <div class="status-card status-card--ok" *ngIf="status === 'conectado'">
+      <div class="status-icon status-icon--ok">
+        <i class="bi bi-check-circle-fill"></i>
+      </div>
+      <div class="status-texto">
+        <strong>Conta conectada</strong>
+        <span>Sua conta do Mercado Pago está conectada. Os pagamentos das suas reservas são enviados direto para ela.</span>
+      </div>
+      <button class="btn-reconectar" (click)="conectarMercadoPago()" [disabled]="conectando">
+        <span *ngIf="!conectando"><i class="bi bi-arrow-repeat"></i> Reconectar conta</span>
+        <span *ngIf="conectando"><span class="spinner-border spinner-border-sm"></span> Aguarde...</span>
+      </button>
+    </div>
+
+    <div class="status-card status-card--pendente" *ngIf="status === 'desconectado'">
+      <div class="status-icon status-icon--pendente">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+      <div class="status-texto">
+        <strong>Nenhuma conta conectada</strong>
+        <span>Você ainda não pode receber pagamentos. Conecte sua conta do Mercado Pago para começar a vender.</span>
+      </div>
+      <button class="btn-conectar" (click)="conectarMercadoPago()" [disabled]="conectando">
+        <span *ngIf="!conectando"><i class="bi bi-link-45deg"></i> Conectar com Mercado Pago</span>
+        <span *ngIf="conectando"><span class="spinner-border spinner-border-sm"></span> Redirecionando...</span>
+      </button>
+    </div>
+
+    <div class="como-funciona">
+      <div class="section-header" style="margin-bottom: 24px; margin-top: 0">
+        <span class="section-badge">Como funciona</span>
+        <h2>O caminho do dinheiro</h2>
+      </div>
+
+      <div class="passos-grid">
+        <div class="passo-card">
+          <div class="passo-icon"><i class="bi bi-link-45deg"></i></div>
+          <h3>1. Conecte sua conta</h3>
+          <p>Você será levado até o Mercado Pago para autorizar a conexão. Não compartilhamos sua senha em nenhum momento.</p>
+        </div>
+        <div class="passo-card">
+          <div class="passo-icon"><i class="bi bi-calendar-check"></i></div>
+          <h3>2. Jogador reserva e paga</h3>
+          <p>Ao reservar uma quadra, o jogador paga pelo Checkout do Mercado Pago, do jeito que ele já conhece.</p>
+        </div>
+        <div class="passo-card">
+          <div class="passo-icon"><i class="bi bi-wallet2"></i></div>
+          <h3>3. Valor cai na sua conta</h3>
+          <p>O dinheiro vai direto para a sua conta do Mercado Pago, descontada apenas a taxa do seu plano atual.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="aviso-seguranca">
+      <i class="bi bi-shield-lock-fill"></i>
+      <span>A conexão é feita oficialmente pelo Mercado Pago (OAuth). O BeachUp nunca tem acesso à sua senha.</span>
+    </div>
+
+  </div>
+</div>
